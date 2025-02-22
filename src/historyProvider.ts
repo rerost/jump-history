@@ -5,8 +5,10 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     private _onDidChangeTreeData = new vscode.EventEmitter<string | undefined>();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
     public historyData: HistoryData;
+    private context: vscode.ExtensionContext;
 
     constructor(context: vscode.ExtensionContext) {
+        this.context = context;
         this.historyData = context.globalState.get('jumpHistory') || { 
             nodes: new Map(), 
             root: null 
@@ -40,6 +42,7 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         return Array.from(node?.children || []);
     }
 
+    private lastActiveFile: string | null = null;
     private currentActiveFile: string | null = null;
 
     addHistoryEntry(from: vscode.Uri, to: vscode.Uri): void {
@@ -52,6 +55,7 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
             this.historyData.nodes.set(fromStr, {
                 uri: from,
                 children: new Set(),
+                parent: null,
                 timestamp
             });
         }
@@ -59,14 +63,26 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
             this.historyData.nodes.set(toStr, {
                 uri: to,
                 children: new Set(),
+                parent: null,
                 timestamp
             });
         }
 
-        // Update relationships based on current active file
+        // Update relationships based on navigation
         const parentStr = this.currentActiveFile || fromStr;
-        if (this.historyData.nodes.has(parentStr)) {
-            this.historyData.nodes.get(parentStr)?.children.add(toStr);
+        const toNode = this.historyData.nodes.get(toStr);
+        const parentNode = this.historyData.nodes.get(parentStr);
+
+        if (toNode && parentNode) {
+            // Remove from previous parent if exists
+            if (toNode.parent) {
+                const oldParentNode = this.historyData.nodes.get(toNode.parent);
+                oldParentNode?.children.delete(toStr);
+            }
+            
+            // Update parent-child relationship
+            toNode.parent = parentStr;
+            parentNode.children.add(toStr);
         }
         
         // Set root if not exists
@@ -74,7 +90,8 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
             this.historyData.root = fromStr;
         }
 
-        // Update current active file
+        // Update tracking
+        this.lastActiveFile = this.currentActiveFile;
         this.currentActiveFile = toStr;
 
         // Notify tree view of changes
@@ -88,6 +105,6 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
             nodes: Array.from(this.historyData.nodes.entries()),
             root: this.historyData.root
         };
-        vscode.commands.executeCommand('setContext', 'jumpHistory', serializedData);
+        this.context.globalState.update('jumpHistory', serializedData);
     }
 }

@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 export interface HistoryNode {
     uri: vscode.Uri;
     children: Set<string>;
+    parent: string | null;
     timestamp: number;
     label?: string;
 }
