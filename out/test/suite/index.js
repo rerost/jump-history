@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = run;
 const path = require("path");
-const Mocha = require('mocha');
+const Mocha = require("mocha");
 const glob_1 = require("glob");
 function run() {
     const mocha = new Mocha({

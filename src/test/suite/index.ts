@@ -3,7 +3,7 @@ import * as Mocha from 'mocha';
 import { glob } from 'glob';
 
 export function run(): Promise<void> {
-    const mocha = new Mocha({
+    const mocha = new (Mocha as any)({
         ui: 'tdd',
         color: true,
         reporter: 'spec'
