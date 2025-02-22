@@ -5,6 +5,7 @@ const vscode = require('vscode');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+    console.log('Activating jump-history extension');
     // Create output channel for debugging
     const outputChannel = vscode.window.createOutputChannel('Jump History');
 
@@ -16,12 +17,12 @@ function activate(context) {
     });
 
     // Track definition jumps
-    const definitionProviderDisposable = vscode.languages.registerDefinitionProvider({ scheme: '*' }, {
+    const definitionProviderDisposable = vscode.languages.registerDefinitionProvider('*', {
         provideDefinition(document, position, _token) {
             const message = `Definition jump requested at ${document.uri.fsPath}:${position.line + 1}:${position.character + 1}`;
             console.log(message);
             outputChannel.appendLine(message);
-            return null; // Let VSCode handle the actual jump
+            return undefined; // Let VSCode handle the actual jump
         }
     });
 
