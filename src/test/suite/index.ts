@@ -1,9 +1,9 @@
 import * as path from 'path';
-const Mocha = require('mocha');
+import Mocha = require('mocha');
 import { glob } from 'glob';
 
 export function run(): Promise<void> {
-    const mocha = new (Mocha as any)({
+    const mocha = new Mocha({
         ui: 'tdd',
         color: true,
         reporter: 'spec'
@@ -13,7 +13,7 @@ export function run(): Promise<void> {
     return new Promise(async (resolve, reject) => {
         try {
             const files = await new Promise<string[]>((resolve, reject) => {
-                glob('**/**.test.js', { cwd: testsRoot }, (err, matches) => {
+                glob('**/*.test.js', { cwd: testsRoot }, (err, matches) => {
                     if (err) {
                         reject(err);
                     } else {

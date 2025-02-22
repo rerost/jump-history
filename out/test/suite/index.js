@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = run;
 const path = require("path");
-const Mocha = require('mocha');
+const Mocha = require("mocha");
 const glob_1 = require("glob");
 function run() {
     const mocha = new Mocha({
@@ -14,7 +14,7 @@ function run() {
     return new Promise(async (resolve, reject) => {
         try {
             const files = await new Promise((resolve, reject) => {
-                (0, glob_1.glob)('**/**.test.js', { cwd: testsRoot }, (err, matches) => {
+                (0, glob_1.glob)('**/*.test.js', { cwd: testsRoot }, (err, matches) => {
                     if (err) {
                         reject(err);
                     }
