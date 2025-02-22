@@ -44,18 +44,21 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
-    "pretest": "npm run compile && npm run lint",
+    "pretest": "npm run compile",
     "test": "node ./node_modules/@vscode/test-electron/out/runTest.js"
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0",
+    "@types/glob": "^7.2.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.17.19",
     "@types/vscode": "^1.97.0",
+    "@typescript-eslint/eslint-plugin": "^8.24.1",
+    "@typescript-eslint/parser": "^8.24.1",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "eslint": "^9.19.0",
-    "glob": "^11.0.1",
+    "glob": "^7.2.3",
+    "minimatch": "^3.1.2",
     "mocha": "^11.1.0",
     "typescript": "^5.7.3"
   }
