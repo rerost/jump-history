@@ -15,10 +15,18 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "jumpHistory",
+          "name": "Jump History"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "jump-history.helloWorld",
-        "title": "Hello World"
+        "command": "jumpHistory.showQuickPick",
+        "title": "Show Jump History"
       }
     ]
   },
