@@ -1,41 +1,57 @@
-// The module 'vscode' contains the VS Code extensibility API
 import * as vscode from 'vscode';
+import { HistoryTreeProvider } from './historyProvider';
+import { showHistoryQuickPick } from './quickPick';
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-function activate(context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext): void {
     console.log('Activating jump-history extension');
-    // Create output channel for debugging
-    const outputChannel = vscode.window.createOutputChannel('Jump History');
+    
+    // Create and register the history provider
+    const historyProvider = new HistoryTreeProvider(context);
+    const treeView = vscode.window.registerTreeDataProvider('jumpHistory', historyProvider);
+    context.subscriptions.push(treeView);
 
-    // Track file opens
-    const fileOpenDisposable = vscode.workspace.onDidOpenTextDocument(document => {
-        const message = `File opened: ${document.uri.fsPath}`;
-        console.log(message);
-        outputChannel.appendLine(message);
-    });
+    // Track file opens and navigation
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(editor => {
+            if (editor?.document.uri) {
+                const currentUri = editor.document.uri;
+                const lastUri = context.workspaceState.get<vscode.Uri>('lastActiveFile');
+                if (lastUri && lastUri.toString() !== currentUri.toString()) {
+                    historyProvider.addHistoryEntry(lastUri, currentUri);
+                }
+                context.workspaceState.update('lastActiveFile', currentUri);
+            }
+        })
+    );
 
     // Track definition jumps
-    const definitionProviderDisposable = vscode.languages.registerDefinitionProvider('*', {
-        provideDefinition(document, position, _token) {
-            const message = `Definition jump requested at ${document.uri.fsPath}:${position.line + 1}:${position.character + 1}`;
-            console.log(message);
-            outputChannel.appendLine(message);
-            return undefined; // Let VSCode handle the actual jump
-        }
-    });
+    context.subscriptions.push(
+        vscode.languages.registerDefinitionProvider('*', {
+            provideDefinition(document: vscode.TextDocument): vscode.ProviderResult<vscode.Definition> {
+                const currentUri = document.uri;
+                const lastUri = context.workspaceState.get<vscode.Uri>('lastActiveFile');
+                if (lastUri && lastUri.toString() !== currentUri.toString()) {
+                    historyProvider.addHistoryEntry(lastUri, currentUri);
+                }
+                context.workspaceState.update('lastActiveFile', currentUri);
+                return undefined; // Let VSCode handle the actual jump
+            }
+        })
+    );
 
-    // Register disposables
-    context.subscriptions.push(fileOpenDisposable);
-    context.subscriptions.push(definitionProviderDisposable);
-    context.subscriptions.push(outputChannel);
+    // Register quick pick command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('jumpHistory.showQuickPick', () => {
+            showHistoryQuickPick(historyProvider.historyData);
+        })
+    );
+
+    // Save history data when deactivating
+    context.subscriptions.push(
+        new vscode.Disposable(() => {
+            historyProvider.saveHistory();
+        })
+    );
 }
 
-// This method is called when your extension is deactivated
-function deactivate(): void {}
-
-export {
-    activate,
-    deactivate
-}
+export function deactivate(): void {}

@@ -4,7 +4,7 @@ import { HistoryNode, HistoryData, HistoryTreeItem } from './types';
 export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     private _onDidChangeTreeData = new vscode.EventEmitter<string | undefined>();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-    private historyData: HistoryData;
+    public historyData: HistoryData;
 
     constructor(context: vscode.ExtensionContext) {
         this.historyData = context.globalState.get('jumpHistory') || { 
