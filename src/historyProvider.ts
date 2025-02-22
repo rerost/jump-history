@@ -40,33 +40,42 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         return Array.from(node?.children || []);
     }
 
+    private currentActiveFile: string | null = null;
+
     addHistoryEntry(from: vscode.Uri, to: vscode.Uri): void {
         const fromStr = from.toString();
         const toStr = to.toString();
+        const timestamp = Date.now();
 
         // Add or update nodes
         if (!this.historyData.nodes.has(fromStr)) {
             this.historyData.nodes.set(fromStr, {
                 uri: from,
                 children: new Set(),
-                timestamp: Date.now()
+                timestamp
             });
         }
         if (!this.historyData.nodes.has(toStr)) {
             this.historyData.nodes.set(toStr, {
                 uri: to,
                 children: new Set(),
-                timestamp: Date.now()
+                timestamp
             });
         }
 
-        // Update relationships
-        this.historyData.nodes.get(fromStr)?.children.add(toStr);
+        // Update relationships based on current active file
+        const parentStr = this.currentActiveFile || fromStr;
+        if (this.historyData.nodes.has(parentStr)) {
+            this.historyData.nodes.get(parentStr)?.children.add(toStr);
+        }
         
         // Set root if not exists
         if (!this.historyData.root) {
             this.historyData.root = fromStr;
         }
+
+        // Update current active file
+        this.currentActiveFile = toStr;
 
         // Notify tree view of changes
         this._onDidChangeTreeData.fire(undefined);
