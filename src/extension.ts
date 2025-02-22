@@ -1,10 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
-const vscode = require('vscode');
+import * as vscode from 'vscode';
 
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+function activate(context: vscode.ExtensionContext): void {
     console.log('Activating jump-history extension');
     // Create output channel for debugging
     const outputChannel = vscode.window.createOutputChannel('Jump History');
@@ -33,9 +33,9 @@ function activate(context) {
 }
 
 // This method is called when your extension is deactivated
-function deactivate() {}
+function deactivate(): void {}
 
-module.exports = {
+export {
     activate,
     deactivate
 }
