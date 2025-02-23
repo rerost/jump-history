@@ -76,7 +76,13 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         }
     }
 
-    addHistoryEntry(from: vscode.Uri, to: vscode.Uri): void {
+    addHistoryEntry(from: vscode.Uri | undefined, to: vscode.Uri): void {
+        if (!from || !to) {
+            this.outputChannel.appendLine(`\nEvent: Initial file open ${vscode.workspace.asRelativePath(to)}`);
+            this.outputChannel.appendLine(`Time: ${new Date().toISOString()}`);
+            return;
+        }
+
         const fromStr = from.toString();
         const toStr = to.toString();
         const timestamp = Date.now();
