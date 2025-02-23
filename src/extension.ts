@@ -7,7 +7,10 @@ export function activate(context: vscode.ExtensionContext): void {
     
     // Create and register the history provider
     const historyProvider = new HistoryTreeProvider(context);
-    const treeView = vscode.window.registerTreeDataProvider('jumpHistory', historyProvider);
+    const treeView = vscode.window.createTreeView('jumpHistory', { 
+        treeDataProvider: historyProvider,
+        showCollapseAll: true
+    });
     context.subscriptions.push(treeView);
 
     // Track file opens and navigation

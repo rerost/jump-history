@@ -16,11 +16,21 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "jump-history",
+          "title": "Jump History",
+          "icon": "$(history)"
+        }
+      ]
+    },
     "views": {
-      "explorer": [
+      "jump-history": [
         {
           "id": "jumpHistory",
-          "name": "Jump History"
+          "name": "Navigation History",
+          "type": "tree"
         }
       ]
     },
