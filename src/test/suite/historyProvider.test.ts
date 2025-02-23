@@ -147,7 +147,7 @@ suite('HistoryTreeProvider Test Suite', () => {
         assert.strictEqual(nodeC?.parent, fileA.toString(), 'File C should have File A as parent');
     });
 
-    test('Should verify navigation logs with books', () => {
+    test('Should verify navigation logs with return to user and books', () => {
         const fixturesPath = path.join(__dirname, '../../fixtures');
         const userFile = vscode.Uri.file(path.join(fixturesPath, 'user.ts'));
         const settingsFile = vscode.Uri.file(path.join(fixturesPath, 'settings.ts'));
@@ -158,7 +158,10 @@ suite('HistoryTreeProvider Test Suite', () => {
         provider.addHistoryEntry(undefined, userFile);
         provider.addHistoryEntry(userFile, settingsFile);
         provider.addHistoryEntry(settingsFile, profileFile);
-        provider.addHistoryEntry(profileFile, booksFile);
+        // Return to user.ts
+        provider.addHistoryEntry(profileFile, userFile);
+        // Navigate to books from user
+        provider.addHistoryEntry(userFile, booksFile);
 
         // Get output channel content
         const outputContent = (mockOutputChannel as any).content;
