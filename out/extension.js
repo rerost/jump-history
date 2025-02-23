@@ -6,11 +6,22 @@ const vscode = require("vscode");
 const historyProvider_1 = require("./historyProvider");
 const quickPick_1 = require("./quickPick");
 function activate(context) {
-    console.log('Activating jump-history extension');
+    // Create output channel
+    const outputChannel = vscode.window.createOutputChannel('Jump History');
+    outputChannel.appendLine('Activating jump-history extension');
     // Create and register the history provider
-    const historyProvider = new historyProvider_1.HistoryTreeProvider(context);
-    const treeView = vscode.window.registerTreeDataProvider('jumpHistory', historyProvider);
-    context.subscriptions.push(treeView);
+    const historyProvider = new historyProvider_1.HistoryTreeProvider(context, outputChannel);
+    // Register Explorer view
+    const explorerView = vscode.window.createTreeView('explorerJumpHistory', {
+        treeDataProvider: historyProvider,
+        showCollapseAll: true
+    });
+    // Register Activity Bar view
+    const activityBarView = vscode.window.createTreeView('activityBarJumpHistory', {
+        treeDataProvider: historyProvider,
+        showCollapseAll: true
+    });
+    context.subscriptions.push(explorerView, activityBarView);
     // Track file opens and navigation
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor?.document.uri) {

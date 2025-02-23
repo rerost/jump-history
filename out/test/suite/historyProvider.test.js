@@ -6,15 +6,47 @@ const historyProvider_1 = require("../../historyProvider");
 suite('HistoryTreeProvider Test Suite', () => {
     let provider;
     let mockContext;
+    let mockOutputChannel;
     setup(() => {
-        // Mock ExtensionContext
+        // Mock ExtensionContext and OutputChannel
         mockContext = {
             globalState: {
                 get: (_key) => null,
                 update: (_key, _value) => Promise.resolve()
             }
         };
-        provider = new historyProvider_1.HistoryTreeProvider(mockContext);
+        mockOutputChannel = {
+            appendLine: (_value) => { },
+            append: (_value) => { },
+            clear: () => { },
+            show: () => { },
+            hide: () => { },
+            dispose: () => { }
+        };
+        provider = new historyProvider_1.HistoryTreeProvider(mockContext, mockOutputChannel);
+    });
+    test('Should handle initial file open', () => {
+        const fileA = vscode.Uri.file('/path/to/A');
+        provider.addHistoryEntry(undefined, fileA);
+        const nodeA = provider.historyData.nodes.get(fileA.toString());
+        assert.ok(nodeA, 'File A should be added to nodes');
+        assert.strictEqual(provider.historyData.root, fileA.toString(), 'File A should be root');
+        assert.strictEqual(nodeA?.parent, null, 'File A should have no parent');
+        assert.strictEqual(nodeA?.children.size, 0, 'File A should have no children');
+    });
+    test('Should handle navigation after initial file open', () => {
+        const fileA = vscode.Uri.file('/path/to/A');
+        const fileB = vscode.Uri.file('/path/to/B');
+        // Initial file open
+        provider.addHistoryEntry(undefined, fileA);
+        // Navigate to second file
+        provider.addHistoryEntry(fileA, fileB);
+        const nodeA = provider.historyData.nodes.get(fileA.toString());
+        const nodeB = provider.historyData.nodes.get(fileB.toString());
+        assert.ok(nodeA, 'File A should be added to nodes');
+        assert.ok(nodeB, 'File B should be added to nodes');
+        assert.strictEqual(nodeA?.children.has(fileB.toString()), true, 'File A should have File B as child');
+        assert.strictEqual(nodeB?.parent, fileA.toString(), 'File B should have File A as parent');
     });
     test('Should create parent-child relationship on first jump', () => {
         const fileA = vscode.Uri.file('/path/to/A');
