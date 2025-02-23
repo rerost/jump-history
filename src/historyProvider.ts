@@ -90,18 +90,21 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         }
         fs.appendFileSync(
             path.join(logDir, 'jump-history.log'),
-            `\n[${new Date().toISOString()}]\n${logLines.join('\n')}\n`
+            `${logLines.join('\n')}\n`
         );
     }
 
     addHistoryEntry(from: vscode.Uri | undefined, to: vscode.Uri): void {
         const timestamp = Date.now();
         const toStr = to.toString();
+        const currentFile = vscode.workspace.asRelativePath(to);
+        const previousFile = from ? vscode.workspace.asRelativePath(from) : null;
+        const isoTimestamp = new Date(timestamp).toISOString();
 
         // Handle initial file open
         if (!from) {
-            this.outputChannel.appendLine(`\nEvent: Initial file open ${vscode.workspace.asRelativePath(to)}`);
-            this.outputChannel.appendLine(`Time: ${new Date(timestamp).toISOString()}`);
+            const eventMessage = `Event: Initial file open ${currentFile}`;
+            this.outputChannel.appendLine(`\n[${isoTimestamp}]\n${eventMessage}`);
 
             // Add initial node if not exists
             if (!this.historyData.nodes.has(toStr)) {
