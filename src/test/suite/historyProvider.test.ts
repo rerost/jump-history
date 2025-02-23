@@ -6,9 +6,10 @@ import { HistoryNode, HistoryData } from '../../types';
 suite('HistoryTreeProvider Test Suite', () => {
     let provider: HistoryTreeProvider;
     let mockContext: vscode.ExtensionContext;
+    let mockOutputChannel: vscode.OutputChannel;
 
     setup(() => {
-        // Mock ExtensionContext
+        // Mock ExtensionContext and OutputChannel
         mockContext = {
             globalState: {
                 get: (_key: string) => null,
@@ -16,7 +17,16 @@ suite('HistoryTreeProvider Test Suite', () => {
             }
         } as any;
 
-        provider = new HistoryTreeProvider(mockContext);
+        mockOutputChannel = {
+            appendLine: (_value: string) => {},
+            append: (_value: string) => {},
+            clear: () => {},
+            show: () => {},
+            hide: () => {},
+            dispose: () => {}
+        } as vscode.OutputChannel;
+
+        provider = new HistoryTreeProvider(mockContext, mockOutputChannel);
     });
 
     test('Should create parent-child relationship on first jump', () => {

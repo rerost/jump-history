@@ -3,15 +3,26 @@ import { HistoryTreeProvider } from './historyProvider';
 import { showHistoryQuickPick } from './quickPick';
 
 export function activate(context: vscode.ExtensionContext): void {
-    console.log('Activating jump-history extension');
+    // Create output channel
+    const outputChannel = vscode.window.createOutputChannel('Jump History');
+    outputChannel.appendLine('Activating jump-history extension');
     
     // Create and register the history provider
-    const historyProvider = new HistoryTreeProvider(context);
-    const treeView = vscode.window.createTreeView('jumpHistory', { 
+    const historyProvider = new HistoryTreeProvider(context, outputChannel);
+    
+    // Register Explorer view
+    const explorerView = vscode.window.createTreeView('explorerJumpHistory', { 
         treeDataProvider: historyProvider,
         showCollapseAll: true
     });
-    context.subscriptions.push(treeView);
+    
+    // Register Activity Bar view
+    const activityBarView = vscode.window.createTreeView('activityBarJumpHistory', { 
+        treeDataProvider: historyProvider,
+        showCollapseAll: true
+    });
+    
+    context.subscriptions.push(explorerView, activityBarView);
 
     // Track file opens and navigation
     context.subscriptions.push(

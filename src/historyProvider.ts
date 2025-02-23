@@ -6,8 +6,10 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
     public historyData: HistoryData;
     private context: vscode.ExtensionContext;
+    private outputChannel: vscode.OutputChannel;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) {
+        this.outputChannel = outputChannel;
         this.context = context;
         const savedData = context.globalState.get<SerializedHistoryData>('jumpHistory');
         this.historyData = savedData ? {
@@ -52,10 +54,35 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     private lastActiveFile: string | null = null;
     private currentActiveFile: string | null = null;
 
+    private logTreeStructure(): void {
+        this.outputChannel.appendLine('\nCurrent Tree Structure:');
+        const printNode = (uri: string, depth: number = 0) => {
+            const node = this.historyData.nodes.get(uri);
+            if (!node) return;
+            
+            const indent = '  '.repeat(depth);
+            const label = vscode.workspace.asRelativePath(node.uri);
+            this.outputChannel.appendLine(`${indent}• ${label}`);
+            
+            for (const childUri of node.children) {
+                printNode(childUri, depth + 1);
+            }
+        };
+        
+        if (this.historyData.root) {
+            printNode(this.historyData.root);
+        } else {
+            this.outputChannel.appendLine('(Empty tree)');
+        }
+    }
+
     addHistoryEntry(from: vscode.Uri, to: vscode.Uri): void {
         const fromStr = from.toString();
         const toStr = to.toString();
         const timestamp = Date.now();
+        
+        this.outputChannel.appendLine(`\nEvent: Navigation from ${vscode.workspace.asRelativePath(from)} to ${vscode.workspace.asRelativePath(to)}`);
+        this.outputChannel.appendLine(`Time: ${new Date(timestamp).toISOString()}`);
 
         // Add or update nodes
         if (!this.historyData.nodes.has(fromStr)) {
@@ -101,7 +128,8 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         this.lastActiveFile = this.currentActiveFile;
         this.currentActiveFile = toStr;
 
-        // Notify tree view of changes
+        // Log updated tree structure and notify tree view of changes
+        this.logTreeStructure();
         this._onDidChangeTreeData.fire(undefined);
     }
 
