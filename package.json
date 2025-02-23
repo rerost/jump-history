@@ -26,6 +26,13 @@
       ]
     },
     "views": {
+      "explorer": [
+        {
+          "id": "jumpHistory",
+          "name": "Jump History",
+          "type": "tree"
+        }
+      ],
       "jump-history": [
         {
           "id": "jumpHistory",
