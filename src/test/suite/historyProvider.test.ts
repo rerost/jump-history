@@ -70,6 +70,7 @@ suite('HistoryTreeProvider Test Suite', () => {
         const userFile = vscode.Uri.file(path.join(fixturesPath, 'user.ts'));
         const settingsFile = vscode.Uri.file(path.join(fixturesPath, 'settings.ts'));
         const profileFile = vscode.Uri.file(path.join(fixturesPath, 'profile.ts'));
+        const booksFile = vscode.Uri.file(path.join(fixturesPath, 'books.ts'));
         
         // Initial file open
         provider.addHistoryEntry(undefined, userFile);
@@ -77,18 +78,23 @@ suite('HistoryTreeProvider Test Suite', () => {
         provider.addHistoryEntry(userFile, settingsFile);
         // Navigate to profile
         provider.addHistoryEntry(settingsFile, profileFile);
+        // Navigate to books
+        provider.addHistoryEntry(profileFile, booksFile);
 
         const userNode = provider.historyData.nodes.get(userFile.toString());
         const settingsNode = provider.historyData.nodes.get(settingsFile.toString());
         const profileNode = provider.historyData.nodes.get(profileFile.toString());
+        const booksNode = provider.historyData.nodes.get(booksFile.toString());
         
         // Verify tree structure
         assert.ok(userNode, 'User file should be added to nodes');
         assert.ok(settingsNode, 'Settings file should be added to nodes');
         assert.ok(profileNode, 'Profile file should be added to nodes');
+        assert.ok(booksNode, 'Books file should be added to nodes');
         assert.strictEqual(userNode?.children.has(settingsFile.toString()), true, 'User file should have Settings as child');
         assert.strictEqual(settingsNode?.parent, userFile.toString(), 'Settings file should have User as parent');
         assert.strictEqual(profileNode?.parent, settingsFile.toString(), 'Profile file should have Settings as parent');
+        assert.strictEqual(booksNode?.parent, profileFile.toString(), 'Books file should have Profile as parent');
 
         // Get output channel content
         const outputContent = (mockOutputChannel as any).content;
@@ -141,16 +147,18 @@ suite('HistoryTreeProvider Test Suite', () => {
         assert.strictEqual(nodeC?.parent, fileA.toString(), 'File C should have File A as parent');
     });
 
-    test('Should verify navigation logs', () => {
+    test('Should verify navigation logs with books', () => {
         const fixturesPath = path.join(__dirname, '../../fixtures');
         const userFile = vscode.Uri.file(path.join(fixturesPath, 'user.ts'));
         const settingsFile = vscode.Uri.file(path.join(fixturesPath, 'settings.ts'));
         const profileFile = vscode.Uri.file(path.join(fixturesPath, 'profile.ts'));
+        const booksFile = vscode.Uri.file(path.join(fixturesPath, 'books.ts'));
 
         // Navigate through files
         provider.addHistoryEntry(undefined, userFile);
         provider.addHistoryEntry(userFile, settingsFile);
         provider.addHistoryEntry(settingsFile, profileFile);
+        provider.addHistoryEntry(profileFile, booksFile);
 
         // Get output channel content
         const outputContent = (mockOutputChannel as any).content;
@@ -169,5 +177,8 @@ suite('HistoryTreeProvider Test Suite', () => {
 
         assert.ok(outputContent.includes('Event: Navigation from settings.ts to profile.ts'), 'Log should show navigation to profile.ts');
         assert.ok(outputContent.includes('    • profile.ts'), 'Log should contain profile.ts with correct indentation');
+
+        assert.ok(outputContent.includes('Event: Navigation from profile.ts to books.ts'), 'Log should show navigation to books.ts');
+        assert.ok(outputContent.includes('      • books.ts'), 'Log should contain books.ts with correct indentation');
     });
 });
