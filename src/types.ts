@@ -20,3 +20,8 @@ export interface HistoryTreeItem extends vscode.TreeItem {
 export interface HistoryQuickPickItem extends vscode.QuickPickItem {
     uri: vscode.Uri;
 }
+
+export interface SerializedHistoryData {
+    nodes: [string, HistoryNode][];
+    root: string | null;
+}

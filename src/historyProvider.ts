@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { HistoryNode, HistoryData, HistoryTreeItem } from './types';
+import { HistoryNode, HistoryData, HistoryTreeItem, SerializedHistoryData } from './types';
 
 export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     private _onDidChangeTreeData = new vscode.EventEmitter<string | undefined>();
@@ -9,10 +9,15 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
-        this.historyData = context.globalState.get('jumpHistory') || { 
-            nodes: new Map(), 
-            root: null 
-        };
+        const savedData = context.globalState.get<SerializedHistoryData>('jumpHistory');
+        this.historyData = savedData ? {
+            nodes: new Map(savedData.nodes.map(([key, node]: [string, HistoryNode]) => [key, {
+                ...node,
+                uri: typeof node.uri === 'string' ? vscode.Uri.parse(node.uri) : node.uri,
+                children: new Set(node.children)
+            }])),
+            root: savedData.root
+        } : { nodes: new Map(), root: null };
     }
 
     getTreeItem(uri: string): vscode.TreeItem {
