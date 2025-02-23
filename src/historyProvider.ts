@@ -77,15 +77,36 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     }
 
     addHistoryEntry(from: vscode.Uri | undefined, to: vscode.Uri): void {
-        if (!from || !to) {
+        const timestamp = Date.now();
+        const toStr = to.toString();
+
+        // Handle initial file open
+        if (!from) {
             this.outputChannel.appendLine(`\nEvent: Initial file open ${vscode.workspace.asRelativePath(to)}`);
-            this.outputChannel.appendLine(`Time: ${new Date().toISOString()}`);
+            this.outputChannel.appendLine(`Time: ${new Date(timestamp).toISOString()}`);
+
+            // Add initial node if not exists
+            if (!this.historyData.nodes.has(toStr)) {
+                this.historyData.nodes.set(toStr, {
+                    uri: to,
+                    children: new Set(),
+                    parent: null,
+                    timestamp
+                });
+                // Set as root if no root exists
+                if (!this.historyData.root) {
+                    this.historyData.root = toStr;
+                }
+            }
+
+            // Update tracking and notify
+            this.currentActiveFile = toStr;
+            this.logTreeStructure();
+            this._onDidChangeTreeData.fire(undefined);
             return;
         }
 
         const fromStr = from.toString();
-        const toStr = to.toString();
-        const timestamp = Date.now();
         
         this.outputChannel.appendLine(`\nEvent: Navigation from ${vscode.workspace.asRelativePath(from)} to ${vscode.workspace.asRelativePath(to)}`);
         this.outputChannel.appendLine(`Time: ${new Date(timestamp).toISOString()}`);
