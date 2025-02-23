@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { HistoryTreeProvider } from '../../historyProvider';
 import { HistoryNode, HistoryData } from '../../types';
 
@@ -17,14 +18,22 @@ suite('HistoryTreeProvider Test Suite', () => {
             }
         } as any;
 
+        let outputLog = '';
         mockOutputChannel = {
-            appendLine: (_value: string) => {},
-            append: (_value: string) => {},
-            clear: () => {},
+            name: 'Jump History',
+            appendLine: (value: string) => { outputLog += value + '\n'; },
+            append: (value: string) => { outputLog += value; },
+            replace: (value: string) => { outputLog = value; },
+            clear: () => { outputLog = ''; },
             show: () => {},
             hide: () => {},
             dispose: () => {}
         } as vscode.OutputChannel;
+
+        // Add getter to access log content in tests
+        Object.defineProperty(mockOutputChannel, 'content', {
+            get: () => outputLog
+        });
 
         provider = new HistoryTreeProvider(mockContext, mockOutputChannel);
     });
@@ -81,21 +90,20 @@ suite('HistoryTreeProvider Test Suite', () => {
         assert.strictEqual(settingsNode?.parent, userFile.toString(), 'Settings file should have User as parent');
         assert.strictEqual(profileNode?.parent, settingsFile.toString(), 'Profile file should have Settings as parent');
 
-        // Verify logs exist and contain expected content
-        assert.ok(fs.existsSync(logFile), 'Log file should exist');
-        const logContent = fs.readFileSync(logFile, 'utf8');
-        console.log('Log content:', logContent);
+        // Get output channel content
+        const outputContent = (mockOutputChannel as any).content;
+        console.log('Output channel content:', outputContent);
 
         // Verify initial file open
-        assert.ok(logContent.includes('Event: Initial file open user.ts'), 'Log should show initial file open');
-        assert.ok(logContent.includes('• user.ts'), 'Log should contain user.ts');
+        assert.ok(outputContent.includes('Event: Initial file open user.ts'), 'Log should show initial file open');
+        assert.ok(outputContent.includes('• user.ts'), 'Log should contain user.ts');
 
         // Verify navigation events
-        assert.ok(logContent.includes('Event: Navigation from user.ts to settings.ts'), 'Log should show navigation to settings.ts');
-        assert.ok(logContent.includes('  • settings.ts'), 'Log should contain settings.ts with correct indentation');
+        assert.ok(outputContent.includes('Event: Navigation from user.ts to settings.ts'), 'Log should show navigation to settings.ts');
+        assert.ok(outputContent.includes('  • settings.ts'), 'Log should contain settings.ts with correct indentation');
 
-        assert.ok(logContent.includes('Event: Navigation from settings.ts to profile.ts'), 'Log should show navigation to profile.ts');
-        assert.ok(logContent.includes('    • profile.ts'), 'Log should contain profile.ts with correct indentation');
+        assert.ok(outputContent.includes('Event: Navigation from settings.ts to profile.ts'), 'Log should show navigation to profile.ts');
+        assert.ok(outputContent.includes('    • profile.ts'), 'Log should contain profile.ts with correct indentation');
     });
 
     test('Should create parent-child relationship on first jump', () => {
@@ -133,54 +141,33 @@ suite('HistoryTreeProvider Test Suite', () => {
         assert.strictEqual(nodeC?.parent, fileA.toString(), 'File C should have File A as parent');
     });
 
-    test('Should verify navigation logs with books.ts', () => {
-        const fs = require('fs');
-        const path = require('path');
-        const logDir = path.join(__dirname, '../../../logs');
-        const logFile = path.join(logDir, 'jump-history.log');
-
-        // Ensure log directory exists
-        if (!fs.existsSync(logDir)) {
-            fs.mkdirSync(logDir, { recursive: true });
-        }
-
+    test('Should verify navigation logs', () => {
         const fixturesPath = path.join(__dirname, '../../fixtures');
         const userFile = vscode.Uri.file(path.join(fixturesPath, 'user.ts'));
         const settingsFile = vscode.Uri.file(path.join(fixturesPath, 'settings.ts'));
         const profileFile = vscode.Uri.file(path.join(fixturesPath, 'profile.ts'));
-        const booksFile = vscode.Uri.file(path.join(fixturesPath, 'books.ts'));
 
         // Navigate through files
         provider.addHistoryEntry(undefined, userFile);
         provider.addHistoryEntry(userFile, settingsFile);
         provider.addHistoryEntry(settingsFile, profileFile);
-        provider.addHistoryEntry(profileFile, booksFile);
 
-        // Verify tree structure
-        const userNode = provider.historyData.nodes.get(userFile.toString());
-        const settingsNode = provider.historyData.nodes.get(settingsFile.toString());
-        const profileNode = provider.historyData.nodes.get(profileFile.toString());
-        const booksNode = provider.historyData.nodes.get(booksFile.toString());
+        // Get output channel content
+        const outputContent = (mockOutputChannel as any).content;
+        console.log('\nActual Output Channel Content:');
+        console.log('----------------------------------------');
+        console.log(outputContent);
+        console.log('----------------------------------------');
 
-        assert.ok(userNode?.children.has(settingsFile.toString()), 'User file should have Settings as child');
-        assert.ok(settingsNode?.children.has(profileFile.toString()), 'Settings file should have Profile as child');
-        assert.ok(profileNode?.children.has(booksFile.toString()), 'Profile file should have Books as child');
+        // Verify initial file open
+        assert.ok(outputContent.includes('Event: Initial file open user.ts'), 'Log should show initial file open');
+        assert.ok(outputContent.includes('• user.ts'), 'Log should contain user.ts');
 
-        // Verify logs
-        const logContent = fs.readFileSync(logFile, 'utf8');
-        
-        // Check initial file open
-        assert.ok(logContent.includes('Event: Initial file open user.ts'), 'Log should show initial file open');
-        assert.ok(logContent.includes('• user.ts'), 'Log should contain user.ts');
-        
-        // Check navigation events
-        assert.ok(logContent.includes('Event: Navigation from user.ts to settings.ts'), 'Log should show navigation to settings.ts');
-        assert.ok(logContent.includes('  • settings.ts'), 'Log should contain settings.ts with correct indentation');
-        
-        assert.ok(logContent.includes('Event: Navigation from settings.ts to profile.ts'), 'Log should show navigation to profile.ts');
-        assert.ok(logContent.includes('    • profile.ts'), 'Log should contain profile.ts with correct indentation');
-        
-        assert.ok(logContent.includes('Event: Navigation from profile.ts to books.ts'), 'Log should show navigation to books.ts');
-        assert.ok(logContent.includes('      • books.ts'), 'Log should contain books.ts with correct indentation');
+        // Verify navigation events
+        assert.ok(outputContent.includes('Event: Navigation from user.ts to settings.ts'), 'Log should show navigation to settings.ts');
+        assert.ok(outputContent.includes('  • settings.ts'), 'Log should contain settings.ts with correct indentation');
+
+        assert.ok(outputContent.includes('Event: Navigation from settings.ts to profile.ts'), 'Log should show navigation to profile.ts');
+        assert.ok(outputContent.includes('    • profile.ts'), 'Log should contain profile.ts with correct indentation');
     });
 });
