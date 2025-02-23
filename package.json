@@ -28,14 +28,14 @@
     "views": {
       "explorer": [
         {
-          "id": "jumpHistory",
+          "id": "explorerJumpHistory",
           "name": "Jump History",
           "type": "tree"
         }
       ],
       "jump-history": [
         {
-          "id": "jumpHistory",
+          "id": "activityBarJumpHistory",
           "name": "Navigation History",
           "type": "tree"
         }
