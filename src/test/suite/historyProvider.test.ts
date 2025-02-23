@@ -42,10 +42,25 @@ suite('HistoryTreeProvider Test Suite', () => {
         assert.strictEqual(userNode?.children.size, 0, 'User file should have no children');
     });
 
-    test('Should handle navigation between related files', () => {
-        const userFile = vscode.Uri.file('/workspace/src/user.ts');
-        const settingsFile = vscode.Uri.file('/workspace/src/settings.ts');
-        const profileFile = vscode.Uri.file('/workspace/src/profile.ts');
+    test('Should handle navigation between related files and verify logs', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const logDir = path.join(__dirname, '../../../logs');
+        const logFile = path.join(logDir, 'jump-history.log');
+
+        // Clear existing log file
+        if (fs.existsSync(logDir)) {
+            if (fs.existsSync(logFile)) {
+                fs.unlinkSync(logFile);
+            }
+        } else {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
+
+        const fixturesPath = path.join(__dirname, '../../fixtures');
+        const userFile = vscode.Uri.file(path.join(fixturesPath, 'user.ts'));
+        const settingsFile = vscode.Uri.file(path.join(fixturesPath, 'settings.ts'));
+        const profileFile = vscode.Uri.file(path.join(fixturesPath, 'profile.ts'));
         
         // Initial file open
         provider.addHistoryEntry(undefined, userFile);
@@ -58,12 +73,29 @@ suite('HistoryTreeProvider Test Suite', () => {
         const settingsNode = provider.historyData.nodes.get(settingsFile.toString());
         const profileNode = provider.historyData.nodes.get(profileFile.toString());
         
+        // Verify tree structure
         assert.ok(userNode, 'User file should be added to nodes');
         assert.ok(settingsNode, 'Settings file should be added to nodes');
         assert.ok(profileNode, 'Profile file should be added to nodes');
         assert.strictEqual(userNode?.children.has(settingsFile.toString()), true, 'User file should have Settings as child');
         assert.strictEqual(settingsNode?.parent, userFile.toString(), 'Settings file should have User as parent');
         assert.strictEqual(profileNode?.parent, settingsFile.toString(), 'Profile file should have Settings as parent');
+
+        // Verify logs exist and contain expected content
+        assert.ok(fs.existsSync(logFile), 'Log file should exist');
+        const logContent = fs.readFileSync(logFile, 'utf8');
+        console.log('Log content:', logContent);
+
+        // Verify initial file open
+        assert.ok(logContent.includes('Event: Initial file open user.ts'), 'Log should show initial file open');
+        assert.ok(logContent.includes('• user.ts'), 'Log should contain user.ts');
+
+        // Verify navigation events
+        assert.ok(logContent.includes('Event: Navigation from user.ts to settings.ts'), 'Log should show navigation to settings.ts');
+        assert.ok(logContent.includes('  • settings.ts'), 'Log should contain settings.ts with correct indentation');
+
+        assert.ok(logContent.includes('Event: Navigation from settings.ts to profile.ts'), 'Log should show navigation to profile.ts');
+        assert.ok(logContent.includes('    • profile.ts'), 'Log should contain profile.ts with correct indentation');
     });
 
     test('Should create parent-child relationship on first jump', () => {
@@ -112,10 +144,11 @@ suite('HistoryTreeProvider Test Suite', () => {
             fs.mkdirSync(logDir, { recursive: true });
         }
 
-        const userFile = vscode.Uri.file('/workspace/src/user.ts');
-        const settingsFile = vscode.Uri.file('/workspace/src/settings.ts');
-        const profileFile = vscode.Uri.file('/workspace/src/profile.ts');
-        const booksFile = vscode.Uri.file('/workspace/src/books.ts');
+        const fixturesPath = path.join(__dirname, '../../fixtures');
+        const userFile = vscode.Uri.file(path.join(fixturesPath, 'user.ts'));
+        const settingsFile = vscode.Uri.file(path.join(fixturesPath, 'settings.ts'));
+        const profileFile = vscode.Uri.file(path.join(fixturesPath, 'profile.ts'));
+        const booksFile = vscode.Uri.file(path.join(fixturesPath, 'books.ts'));
 
         // Navigate through files
         provider.addHistoryEntry(undefined, userFile);

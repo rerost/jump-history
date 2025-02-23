@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 import { HistoryNode, HistoryData, HistoryTreeItem, SerializedHistoryData, SerializedHistoryNode } from './types';
 
 export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
@@ -54,8 +56,7 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     private lastActiveFile: string | null = null;
     private currentActiveFile: string | null = null;
 
-    private logTreeStructure(): void {
-        this.outputChannel.appendLine('\nCurrent Tree Structure:');
+    private logTreeStructure(event?: string): void {
         const logLines: string[] = [];
         
         const printNode = (uri: string, depth: number = 0) => {
@@ -65,7 +66,6 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
             const indent = '  '.repeat(depth);
             const label = vscode.workspace.asRelativePath(node.uri);
             const line = `${indent}• ${label}`;
-            this.outputChannel.appendLine(line);
             logLines.push(line);
             
             for (const childUri of node.children) {
@@ -76,35 +76,23 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         if (this.historyData.root) {
             printNode(this.historyData.root);
         } else {
-            const emptyMessage = '(Empty tree)';
-            this.outputChannel.appendLine(emptyMessage);
-            logLines.push(emptyMessage);
-        }
-
-        // Also write to file for verification
-        const fs = require('fs');
-        const path = require('path');
-        const logDir = path.join(__dirname, '../../logs');
-        if (!fs.existsSync(logDir)) {
-            fs.mkdirSync(logDir, { recursive: true });
-        }
-        // Write to file for verification
-        const fs = require('fs');
-        const path = require('path');
-        const logDir = path.join(__dirname, '../../logs');
-        if (!fs.existsSync(logDir)) {
-            fs.mkdirSync(logDir, { recursive: true });
+            logLines.push('(Empty tree)');
         }
 
         const timestamp = new Date().toISOString();
-        const eventMessage = this.outputChannel.value || 'Current Tree Structure:';
         const logEntry = `
 [${timestamp}]
-${eventMessage}
-Current Tree Structure:
+${event || 'Current Tree Structure:'}
 ${logLines.join('\n')}
 ----------------------------------------\n`;
+
+        // Write to output channel and file
+        this.outputChannel.appendLine(logEntry);
         
+        const logDir = path.join(__dirname, '../../logs');
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
         fs.appendFileSync(
             path.join(logDir, 'jump-history.log'),
             logEntry
@@ -139,7 +127,7 @@ ${logLines.join('\n')}
 
             // Update tracking and notify
             this.currentActiveFile = toStr;
-            this.logTreeStructure();
+            this.logTreeStructure(`Event: Initial file open ${vscode.workspace.asRelativePath(to)}`);
             this._onDidChangeTreeData.fire(undefined);
             return;
         }
@@ -194,7 +182,7 @@ ${logLines.join('\n')}
         this.currentActiveFile = toStr;
 
         // Log updated tree structure and notify tree view of changes
-        this.logTreeStructure();
+        this.logTreeStructure(`Event: Navigation from ${vscode.workspace.asRelativePath(from)} to ${vscode.workspace.asRelativePath(to)}`);
         this._onDidChangeTreeData.fire(undefined);
     }
 
