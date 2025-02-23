@@ -88,9 +88,26 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir, { recursive: true });
         }
+        // Write to file for verification
+        const fs = require('fs');
+        const path = require('path');
+        const logDir = path.join(__dirname, '../../logs');
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
+
+        const timestamp = new Date().toISOString();
+        const eventMessage = this.outputChannel.value || 'Current Tree Structure:';
+        const logEntry = `
+[${timestamp}]
+${eventMessage}
+Current Tree Structure:
+${logLines.join('\n')}
+----------------------------------------\n`;
+        
         fs.appendFileSync(
             path.join(logDir, 'jump-history.log'),
-            `${logLines.join('\n')}\n`
+            logEntry
         );
     }
 

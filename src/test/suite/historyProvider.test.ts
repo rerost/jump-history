@@ -101,23 +101,53 @@ suite('HistoryTreeProvider Test Suite', () => {
         assert.strictEqual(nodeC?.parent, fileA.toString(), 'File C should have File A as parent');
     });
 
-    test('Should update parent-child relationships when jumping between files', () => {
-        const fileA = vscode.Uri.file('/path/to/A');
-        const fileB = vscode.Uri.file('/path/to/B');
-        const fileC = vscode.Uri.file('/path/to/C');
+    test('Should verify navigation logs with books.ts', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const logDir = path.join(__dirname, '../../../logs');
+        const logFile = path.join(logDir, 'jump-history.log');
 
-        // Jump from A to B
-        provider.addHistoryEntry(fileA, fileB);
-        // Jump from B to C
-        provider.addHistoryEntry(fileB, fileC);
+        // Ensure log directory exists
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
 
-        const nodeA = provider.historyData.nodes.get(fileA.toString());
-        const nodeB = provider.historyData.nodes.get(fileB.toString());
-        const nodeC = provider.historyData.nodes.get(fileC.toString());
+        const userFile = vscode.Uri.file('/workspace/src/user.ts');
+        const settingsFile = vscode.Uri.file('/workspace/src/settings.ts');
+        const profileFile = vscode.Uri.file('/workspace/src/profile.ts');
+        const booksFile = vscode.Uri.file('/workspace/src/books.ts');
 
-        assert.ok(nodeA?.children.has(fileB.toString()), 'File A should have File B as child');
-        assert.ok(nodeB?.children.has(fileC.toString()), 'File B should have File C as child');
-        assert.strictEqual(nodeB?.parent, fileA.toString(), 'File B should have File A as parent');
-        assert.strictEqual(nodeC?.parent, fileB.toString(), 'File C should have File B as parent');
+        // Navigate through files
+        provider.addHistoryEntry(undefined, userFile);
+        provider.addHistoryEntry(userFile, settingsFile);
+        provider.addHistoryEntry(settingsFile, profileFile);
+        provider.addHistoryEntry(profileFile, booksFile);
+
+        // Verify tree structure
+        const userNode = provider.historyData.nodes.get(userFile.toString());
+        const settingsNode = provider.historyData.nodes.get(settingsFile.toString());
+        const profileNode = provider.historyData.nodes.get(profileFile.toString());
+        const booksNode = provider.historyData.nodes.get(booksFile.toString());
+
+        assert.ok(userNode?.children.has(settingsFile.toString()), 'User file should have Settings as child');
+        assert.ok(settingsNode?.children.has(profileFile.toString()), 'Settings file should have Profile as child');
+        assert.ok(profileNode?.children.has(booksFile.toString()), 'Profile file should have Books as child');
+
+        // Verify logs
+        const logContent = fs.readFileSync(logFile, 'utf8');
+        
+        // Check initial file open
+        assert.ok(logContent.includes('Event: Initial file open user.ts'), 'Log should show initial file open');
+        assert.ok(logContent.includes('• user.ts'), 'Log should contain user.ts');
+        
+        // Check navigation events
+        assert.ok(logContent.includes('Event: Navigation from user.ts to settings.ts'), 'Log should show navigation to settings.ts');
+        assert.ok(logContent.includes('  • settings.ts'), 'Log should contain settings.ts with correct indentation');
+        
+        assert.ok(logContent.includes('Event: Navigation from settings.ts to profile.ts'), 'Log should show navigation to profile.ts');
+        assert.ok(logContent.includes('    • profile.ts'), 'Log should contain profile.ts with correct indentation');
+        
+        assert.ok(logContent.includes('Event: Navigation from profile.ts to books.ts'), 'Log should show navigation to books.ts');
+        assert.ok(logContent.includes('      • books.ts'), 'Log should contain books.ts with correct indentation');
     });
 });
