@@ -117,7 +117,7 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
                     parent: node.parent,
                     timestamp: node.timestamp,
                     label: node.label
-                }
+                } as SerializedHistoryNode
             ]),
             root: this.historyData.root
         };
