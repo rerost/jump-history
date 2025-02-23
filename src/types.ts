@@ -21,7 +21,15 @@ export interface HistoryQuickPickItem extends vscode.QuickPickItem {
     uri: vscode.Uri;
 }
 
+export interface SerializedHistoryNode {
+    uri: string;
+    children: string[];
+    parent: string | null;
+    timestamp: number;
+    label?: string;
+}
+
 export interface SerializedHistoryData {
-    nodes: [string, HistoryNode][];
+    nodes: [string, SerializedHistoryNode][];
     root: string | null;
 }

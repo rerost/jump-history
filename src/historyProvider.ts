@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { HistoryNode, HistoryData, HistoryTreeItem, SerializedHistoryData } from './types';
+import { HistoryNode, HistoryData, HistoryTreeItem, SerializedHistoryData, SerializedHistoryNode } from './types';
 
 export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     private _onDidChangeTreeData = new vscode.EventEmitter<string | undefined>();
@@ -11,10 +11,12 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         this.context = context;
         const savedData = context.globalState.get<SerializedHistoryData>('jumpHistory');
         this.historyData = savedData ? {
-            nodes: new Map(savedData.nodes.map(([key, node]: [string, HistoryNode]) => [key, {
-                ...node,
-                uri: typeof node.uri === 'string' ? vscode.Uri.parse(node.uri) : node.uri,
-                children: new Set(node.children)
+            nodes: new Map(savedData.nodes.map(([key, node]: [string, SerializedHistoryNode]) => [key, {
+                uri: vscode.Uri.parse(node.uri),
+                children: new Set(node.children),
+                parent: node.parent,
+                timestamp: node.timestamp,
+                label: node.label
             }])),
             root: savedData.root
         } : { nodes: new Map(), root: null };
@@ -106,8 +108,17 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
     // Save history data to extension storage
     saveHistory(): void {
         // Convert Map to object for storage
-        const serializedData = {
-            nodes: Array.from(this.historyData.nodes.entries()),
+        const serializedData: SerializedHistoryData = {
+            nodes: Array.from(this.historyData.nodes.entries()).map(([key, node]) => [
+                key,
+                {
+                    uri: node.uri.toString(),
+                    children: Array.from(node.children),
+                    parent: node.parent,
+                    timestamp: node.timestamp,
+                    label: node.label
+                }
+            ]),
             root: this.historyData.root
         };
         this.context.globalState.update('jumpHistory', serializedData);
