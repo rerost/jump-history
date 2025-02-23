@@ -56,13 +56,17 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
 
     private logTreeStructure(): void {
         this.outputChannel.appendLine('\nCurrent Tree Structure:');
+        const logLines: string[] = [];
+        
         const printNode = (uri: string, depth: number = 0) => {
             const node = this.historyData.nodes.get(uri);
             if (!node) return;
             
             const indent = '  '.repeat(depth);
             const label = vscode.workspace.asRelativePath(node.uri);
-            this.outputChannel.appendLine(`${indent}• ${label}`);
+            const line = `${indent}• ${label}`;
+            this.outputChannel.appendLine(line);
+            logLines.push(line);
             
             for (const childUri of node.children) {
                 printNode(childUri, depth + 1);
@@ -72,8 +76,22 @@ export class HistoryTreeProvider implements vscode.TreeDataProvider<string> {
         if (this.historyData.root) {
             printNode(this.historyData.root);
         } else {
-            this.outputChannel.appendLine('(Empty tree)');
+            const emptyMessage = '(Empty tree)';
+            this.outputChannel.appendLine(emptyMessage);
+            logLines.push(emptyMessage);
         }
+
+        // Also write to file for verification
+        const fs = require('fs');
+        const path = require('path');
+        const logDir = path.join(__dirname, '../../logs');
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
+        fs.appendFileSync(
+            path.join(logDir, 'jump-history.log'),
+            `\n[${new Date().toISOString()}]\n${logLines.join('\n')}\n`
+        );
     }
 
     addHistoryEntry(from: vscode.Uri | undefined, to: vscode.Uri): void {

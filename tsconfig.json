@@ -5,11 +5,15 @@
     "outDir": "out",
     "lib": ["ES2020"],
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true
   },
-  "exclude": ["node_modules", ".vscode-test", "test/workspace"]
+  "exclude": ["node_modules", ".vscode-test", "test/workspace"],
+  "include": [
+    "src/**/*",
+    "test/**/*"
+  ]
 }
