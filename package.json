@@ -1,0 +1,25 @@
+{
+    "name": "jump-history",
+    "displayName": "Jump History",
+    "description": "Track and manage your code navigation history",
+    "version": "0.0.1",
+    "publisher": "rerost",
+    "engines": {
+        "vscode": "^1.74.0"
+    },
+    "scripts": {
+        "test": "node ./out/test/runTest.js --timeout 60000",
+        "compile": "tsc -p ./",
+        "pretest": "npm run compile"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.3",
+        "@types/mocha": "^8.2.2",
+        "@types/node": "^14.14.37",
+        "@types/vscode": "^1.54.0",
+        "@vscode/test-electron": "^2.3.8",
+        "glob": "^7.1.6",
+        "mocha": "^8.3.2",
+        "typescript": "^4.2.3"
+    }
+} 
