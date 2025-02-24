@@ -12,4 +12,4 @@
         "types": ["node", "vscode", "mocha"]
     },
     "exclude": ["node_modules", ".vscode-test"]
-}  
+} 

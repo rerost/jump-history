@@ -27,9 +27,8 @@ suite('Extension Test Suite', () => {
         console.log('Waiting for task provider registration...');
         await new Promise(resolve => setTimeout(resolve, 5000)); // Increase initial wait time
 
-        // Verify task provider is registered
-        const providers = await vscode.tasks.taskProviders;
-        console.log('Registered task providers:', providers);
+        // No direct way to verify task providers, so we'll just wait
+        console.log('Waiting for task system to be ready...');
 
 
         // Wait for task provider registration with retries
@@ -57,4 +56,4 @@ suite('Extension Test Suite', () => {
 
         assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});   
+}); 
