@@ -18,9 +18,9 @@ export async function activate(context: vscode.ExtensionContext) {
                 // Create task with ShellExecution
                 const task = new vscode.Task(
                     definition,
-                    vscode.TaskScope.Workspace,
+                    vscode.TaskScope.Global,  // Use Global scope to ensure task is always available
                     'Sample Task',
-                    'sample',  // Use task type as source
+                    'jump-history',  // Use extension ID as source
                     new vscode.ShellExecution('echo "Sample Task executed"')
                 );
 
@@ -43,9 +43,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     // Create task with ShellExecution
                     return new vscode.Task(
                         definition,
-                        vscode.TaskScope.Workspace,
+                        vscode.TaskScope.Global,  // Use Global scope to ensure task is always available
                         definition.task,
-                        'sample',  // Use task type as source
+                        'jump-history',  // Use extension ID as source
                         new vscode.ShellExecution(`echo "${definition.task} executed"`)
                     );
                 }
@@ -96,4 +96,4 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(fileOpenListener);
-}                                                                                       
+}                                                                                           
