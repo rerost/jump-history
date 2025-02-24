@@ -45,15 +45,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Wait for task system to be ready and verify
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-    const tasks = await vscode.tasks.fetchTasks();
-    console.log('Initial tasks:', tasks.map(t => ({ 
+    const initialTasks = await vscode.tasks.fetchTasks();
+    console.log('Initial tasks:', initialTasks.map((t: vscode.Task) => ({ 
         name: t.name, 
         source: t.source, 
         type: t.definition.type,
         scope: t.scope,
         definition: t.definition
     })));
-    console.log('Available tasks:', initialTasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
 
     // Register tree data provider
     const treeDataProvider = new class implements vscode.TreeDataProvider<string> {
@@ -77,6 +76,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Verify task registration
     console.log('Verifying task registration...');
-    const tasks = await vscode.tasks.fetchTasks();
-    console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}                                               
+    const finalTasks = await vscode.tasks.fetchTasks();
+    console.log('Available tasks:', finalTasks.map((t: vscode.Task) => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
+}                                                   
