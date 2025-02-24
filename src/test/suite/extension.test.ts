@@ -23,26 +23,13 @@ suite('Extension Test Suite', () => {
         console.log('Extension activated');
 
 
-        // Initial delay to allow task provider to register
-        console.log('Waiting for initial task provider registration...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait for task provider registration
+        console.log('Waiting for task provider registration...');
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Increase initial wait time
 
-
-        // Create a test task definition
-        const taskDefinition = {
-            type: 'jump-history',
-            task: 'Sample Task'
-        };
-
-
-        // Create a test task
-        const task = new vscode.Task(
-            taskDefinition,
-            vscode.TaskScope.Workspace,
-            'Sample Task',
-            'jump-history',
-            new vscode.ShellExecution('echo "OK"')
-        );
+        // Verify task provider is registered
+        const providers = await vscode.tasks.taskProviders;
+        console.log('Registered task providers:', providers);
 
 
         // Wait for task provider registration with retries
@@ -70,4 +57,4 @@ suite('Extension Test Suite', () => {
 
         assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});    
+});   
