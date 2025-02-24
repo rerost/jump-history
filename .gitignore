@@ -1,0 +1,22 @@
+# コンパイル出力
+out
+dist
+
+# 依存関係
+node_modules
+
+# VSCode関連
+.vscode-test/
+*.vsix
+
+# デバッグ関連
+.DS_Store
+.env
+*.log
+
+# カバレッジレポート
+coverage
+
+# TypeScript関連
+*.js.map
+*.tsbuildinfo 
