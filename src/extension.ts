@@ -105,7 +105,7 @@ export async function activate(context: vscode.ExtensionContext) {
     
     // Create and register task
     const task = new vscode.Task(
-        { type: 'jump-history', task: 'Sample Task' },
+        { type: 'jump-history', task: 'Sample Task' } as SampleTaskDefinition,
         vscode.TaskScope.Workspace,
         'Sample Task',
         'jump-history',
@@ -113,7 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     
     // Register task provider with the created task
-    taskProvider._tasks = [task];
+    taskProvider['_tasks'] = [task];
     const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
     context.subscriptions.push(registration);
     
