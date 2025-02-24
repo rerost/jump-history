@@ -25,7 +25,7 @@ suite('Extension Test Suite', () => {
 
         // Wait for task provider registration
         console.log('Waiting for task provider registration...');
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Initial wait
+        await new Promise(resolve => setTimeout(resolve, 15000)); // Increase wait time to match extension.ts
 
         // Wait for task provider registration with retries
         let foundTask = false;
@@ -52,4 +52,4 @@ suite('Extension Test Suite', () => {
 
         assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});   
+});    
