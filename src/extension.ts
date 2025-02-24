@@ -97,11 +97,26 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Initializing task system...');
     // Force task system initialization and wait for it to be ready
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-    await new Promise(resolve => setTimeout(resolve, 20000)); // Increase wait time further for CI environment
-    await vscode.commands.executeCommand('workbench.action.tasks.reRunTask'); // Try to force task refresh
-    await vscode.commands.executeCommand('workbench.action.tasks.showTasks'); // Show tasks to ensure they're loaded
-    await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'Sample Task'); // Try to run the task directly
-    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for task to run
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Initial wait
+    
+    // Try to register task multiple times
+    for (let attempt = 0; attempt < 5; attempt++) {
+        console.log(`Attempt ${attempt + 1} to register task...`);
+        await vscode.commands.executeCommand('workbench.action.tasks.reRunTask');
+        await vscode.commands.executeCommand('workbench.action.tasks.showTasks');
+        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'Sample Task');
+        
+        const tasks = await vscode.tasks.fetchTasks();
+        if (tasks.some(t => t.name === 'Sample Task')) {
+            console.log('Task registered successfully!');
+            break;
+        }
+        
+        if (attempt < 4) {
+            console.log('Task not found, waiting before retry...');
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+    }
     // Initialize tasks explicitly
     console.log('Initializing tasks...');
     const initialTasks = await taskProvider.provideTasks();
