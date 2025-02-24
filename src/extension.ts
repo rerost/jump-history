@@ -100,24 +100,31 @@ export async function activate(context: vscode.ExtensionContext) {
     await new Promise(resolve => setTimeout(resolve, 5000)); // Initial wait
     
     // Try to register task multiple times
-    for (let attempt = 0; attempt < 5; attempt++) {
+    for (let attempt = 0; attempt < 3; attempt++) {
         console.log(`Attempt ${attempt + 1} to register task...`);
-        // Re-register task provider on each attempt
+        
+        // Force task system initialization
+        await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Re-register task provider
         const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
         context.subscriptions.push(registration);
         
-        await vscode.commands.executeCommand('workbench.action.tasks.reRunTask');
-        await vscode.commands.executeCommand('workbench.action.tasks.showTasks');
+        // Initialize tasks explicitly
+        const initialTasks = await taskProvider.provideTasks();
+        console.log('Initial tasks created:', initialTasks);
         
+        // Verify registration
         const tasks = await vscode.tasks.fetchTasks();
         if (tasks.some(t => t.name === 'Sample Task')) {
             console.log('Task registered successfully!');
             break;
         }
         
-        if (attempt < 4) {
+        if (attempt < 2) {
             console.log('Task not found, waiting before retry...');
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise(resolve => setTimeout(resolve, 3000));
         }
     }
     // Initialize tasks explicitly
