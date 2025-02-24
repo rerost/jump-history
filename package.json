@@ -1,5 +1,5 @@
 {
-    "name": "@rerost/jump-history",
+    "name": "jump-history",
     "publisher": "rerost",
     "displayName": "Jump History",
     "version": "0.0.1",
@@ -37,4 +37,4 @@
         "mocha": "^8.3.2",
         "typescript": "^4.2.3"
     }
-}              
+}                
