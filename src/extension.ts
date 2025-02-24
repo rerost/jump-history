@@ -102,9 +102,12 @@ export async function activate(context: vscode.ExtensionContext) {
     // Try to register task multiple times
     for (let attempt = 0; attempt < 5; attempt++) {
         console.log(`Attempt ${attempt + 1} to register task...`);
+        // Re-register task provider on each attempt
+        const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
+        context.subscriptions.push(registration);
+        
         await vscode.commands.executeCommand('workbench.action.tasks.reRunTask');
         await vscode.commands.executeCommand('workbench.action.tasks.showTasks');
-        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'Sample Task');
         
         const tasks = await vscode.tasks.fetchTasks();
         if (tasks.some(t => t.name === 'Sample Task')) {
