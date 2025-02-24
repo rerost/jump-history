@@ -9,17 +9,35 @@ export async function activate(context: vscode.ExtensionContext) {
     const taskProvider: vscode.TaskProvider = {
         provideTasks: async () => {
             try {
+                // Create task definition that matches package.json
                 const definition: SampleTaskDefinition = {
                     type: 'sample',
                     task: 'Sample Task'
                 };
+
+                // Create task with CustomExecution for better control
                 const task = new vscode.Task(
                     definition,
-                    vscode.TaskScope.Workspace,  // Changed to Workspace scope
+                    vscode.TaskScope.Workspace,
                     'Sample Task',
                     'sample',
-                    new vscode.ShellExecution('echo "OK"')
+                    new vscode.CustomExecution(async (): Promise<vscode.Pseudoterminal> => {
+                        return {
+                            onDidWrite: new vscode.EventEmitter<string>().event,
+                            onDidClose: new vscode.EventEmitter<number>().event,
+                            open: () => {
+                                console.log('Task terminal opened');
+                            },
+                            close: () => {
+                                console.log('Task terminal closed');
+                            },
+                            handleInput: () => {
+                                // No input handling needed
+                            }
+                        };
+                    })
                 );
+
                 console.log('Created task:', { 
                     name: task.name, 
                     source: task.source, 
@@ -36,14 +54,28 @@ export async function activate(context: vscode.ExtensionContext) {
             try {
                 const definition = task.definition as SampleTaskDefinition;
                 if (definition.type === 'sample') {
-                    const resolvedTask = new vscode.Task(
+                    // Create task with CustomExecution for better control
+                    return new vscode.Task(
                         definition,
                         vscode.TaskScope.Workspace,
                         definition.task,
                         'sample',
-                        new vscode.ShellExecution(`echo "${definition.task}"`)
+                        new vscode.CustomExecution(async (): Promise<vscode.Pseudoterminal> => {
+                            return {
+                                onDidWrite: new vscode.EventEmitter<string>().event,
+                                onDidClose: new vscode.EventEmitter<number>().event,
+                                open: () => {
+                                    console.log('Task terminal opened');
+                                },
+                                close: () => {
+                                    console.log('Task terminal closed');
+                                },
+                                handleInput: () => {
+                                    // No input handling needed
+                                }
+                            };
+                        })
                     );
-                    return resolvedTask;
                 }
             } catch (error) {
                 console.error('Error resolving task:', error);
@@ -118,4 +150,4 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(fileOpenListener);
-}                                                           
+}                                                               
