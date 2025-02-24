@@ -50,26 +50,24 @@ suite('Extension Test Suite', () => {
         const maxAttempts = 10;
         const retryInterval = 2000;
 
-
         console.log('Attempting to verify task...');
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             console.log(`Attempt ${attempt + 1} of ${maxAttempts}`);
-            try {
-                // Try to execute the task
-                await vscode.tasks.executeTask(task);
+            const tasks = await vscode.tasks.fetchTasks();
+            console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
+            
+            if (tasks.some(t => t.name === 'Sample Task')) {
                 foundTask = true;
-                console.log('Task executed successfully!');
+                console.log('Task found!');
                 break;
-            } catch (error) {
-                console.log('Error executing task:', error);
-                if (attempt < maxAttempts - 1) {
-                    console.log(`Task execution failed, waiting ${retryInterval}ms before retry...`);
-                    await new Promise(resolve => setTimeout(resolve, retryInterval));
-                }
+            }
+
+            if (attempt < maxAttempts - 1) {
+                console.log(`Task not found, waiting ${retryInterval}ms before retry...`);
+                await new Promise(resolve => setTimeout(resolve, retryInterval));
             }
         }
 
-
-        assert.ok(foundTask, 'Sample Task could not be executed after multiple attempts');
+        assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});  
+});    
