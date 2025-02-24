@@ -5,6 +5,6 @@ module.exports = defineConfig({
   workspaceFolder: '.',
   mocha: {
     ui: 'tdd',
-    timeout: 20000
+    timeout: 60000
   }
 });

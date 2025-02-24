@@ -1,4 +1,27 @@
 {
+    "name": "jump-history",
+    "publisher": "rerost",
+    "displayName": "Jump History",
+    "version": "0.0.1",
+    "main": "./out/extension.js",
+    "engines": {
+        "vscode": "^1.97.0"
+    },
+    "activationEvents": [
+        "*"
+    ],
+    "contributes": {
+        "taskDefinitions": [{
+            "type": "jump-history",
+            "required": ["task"],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "description": "The task name"
+                }
+            }
+        }]
+    },
     "scripts": {
         "test": "node ./out/test/runTest.js --timeout 60000",
         "compile": "tsc -p ./",
@@ -14,4 +37,4 @@
         "mocha": "^8.3.2",
         "typescript": "^4.2.3"
     }
-}
+}            
