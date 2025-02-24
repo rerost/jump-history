@@ -93,9 +93,19 @@ export async function activate(context: vscode.ExtensionContext) {
     const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
     context.subscriptions.push(registration, taskProvider);
 
+    // Create task and register it
+    const task = new vscode.Task(
+        { type: 'jump-history', task: 'Sample Task' } as SampleTaskDefinition,
+        vscode.TaskScope.Workspace,
+        'Sample Task',
+        'jump-history',
+        new vscode.ShellExecution('echo "OK"')
+    );
+    taskProvider['_tasks'] = [task];
+
     // Wait for task system to be ready
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-    await new Promise(resolve => setTimeout(resolve, 5000)); // Initial wait
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Initial wait
 
     // Force task refresh
     await vscode.commands.executeCommand('workbench.action.tasks.reRunTask');
@@ -128,4 +138,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}           
+}               

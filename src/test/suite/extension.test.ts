@@ -25,12 +25,12 @@ suite('Extension Test Suite', () => {
 
         // Wait for task provider registration
         console.log('Waiting for task provider registration...');
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Initial wait
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Initial wait
 
         // Wait for task provider registration with retries
         let foundTask = false;
-        const maxAttempts = 10; // Reduce attempts but increase interval
-        const retryInterval = 3000; // Longer interval
+        const maxAttempts = 20; // More attempts with shorter interval
+        const retryInterval = 1000; // Shorter interval
 
         console.log('Attempting to verify task...');
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -52,4 +52,4 @@ suite('Extension Test Suite', () => {
 
         assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});      
+});        
