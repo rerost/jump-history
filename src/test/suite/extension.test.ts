@@ -23,21 +23,43 @@ suite('Extension Test Suite', () => {
         console.log('Extension activated');
 
 
-        // Wait for task provider registration
+        // Wait for task provider registration with retries
         console.log('Waiting for task provider registration...');
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Longer initial wait
+        let foundTask = false;
+        const maxAttempts = 10;
+        const retryInterval = 1000;
 
-        // Force task refresh
-        await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
+        for (let attempt = 0; attempt < maxAttempts && !foundTask; attempt++) {
+            console.log(`Attempt ${attempt + 1} of ${maxAttempts} to find task...`);
+            
+            // Force task refresh
+            await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
+            
+            // Get tasks and verify
+            const tasks = await vscode.tasks.fetchTasks();
+            console.log('Available tasks:', tasks.map(t => ({
+                name: t.name,
+                source: t.source,
+                type: t.definition.type,
+                scope: t.scope,
+                definition: t.definition
+            })));
 
-        // Get tasks and verify
-        const tasks = await vscode.tasks.fetchTasks();
-        console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
-        
-        // Check if our task exists
-        const foundTask = tasks.some(t => t.name === 'Sample Task' && t.definition.type === 'sample');
-        console.log('Task found:', foundTask);
+            // Check if our task exists
+            foundTask = tasks.some(t => {
+                const isMatch = t.name === 'Sample Task' && t.definition.type === 'sample';
+                console.log(`Task ${t.name} (type: ${t.definition.type}) matches? ${isMatch}`);
+                return isMatch;
+            });
+
+            if (!foundTask && attempt < maxAttempts - 1) {
+                console.log(`Task not found, waiting ${retryInterval}ms before retry...`);
+                await new Promise(resolve => setTimeout(resolve, retryInterval));
+            }
+        }
+
+        console.log('Final task search result:', foundTask);
 
         assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});            
+});              
