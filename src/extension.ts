@@ -38,7 +38,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             try {
                 const definition: SampleTaskDefinition = {
-                    type: 'jump-history',
+                    type: 'sample',
                     task: 'Sample Task'
                 };
                 console.log('Creating task with definition:', definition);
@@ -46,7 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     definition,
                     vscode.TaskScope.Workspace,
                     'Sample Task',
-                    'jump-history', // Match the type in package.json
+                    'sample',
                     new vscode.ShellExecution('echo "OK"')
                 );
                 task.isBackground = false;
@@ -138,4 +138,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}                   
+}                       

@@ -38,7 +38,7 @@ suite('Extension Test Suite', () => {
             const tasks = await vscode.tasks.fetchTasks();
             console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
             
-            if (tasks.some(t => t.name === 'Sample Task')) {
+            if (tasks.some(t => t.name === 'Sample Task' && t.definition.type === 'sample')) {
                 foundTask = true;
                 console.log('Task found!');
                 break;
@@ -52,4 +52,4 @@ suite('Extension Test Suite', () => {
 
         assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});        
+});          
