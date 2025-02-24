@@ -74,7 +74,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         definition,
                         vscode.TaskScope.Workspace,
                         definition.task,
-                        'jump-history', // Match the type in package.json
+                        'sample', // Match the type in package.json
                         new vscode.ShellExecution(`echo "${definition.task}"`)
                     );
                     console.log('Task resolved successfully:', resolvedTask);
@@ -138,4 +138,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}                       
+}                           
