@@ -99,34 +99,29 @@ export async function activate(context: vscode.ExtensionContext) {
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
     await new Promise(resolve => setTimeout(resolve, 5000)); // Initial wait
     
-    // Try to register task multiple times
-    for (let attempt = 0; attempt < 3; attempt++) {
-        console.log(`Attempt ${attempt + 1} to register task...`);
-        
-        // Force task system initialization
-        await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // Re-register task provider
-        const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
-        context.subscriptions.push(registration);
-        
-        // Initialize tasks explicitly
-        const initialTasks = await taskProvider.provideTasks();
-        console.log('Initial tasks created:', initialTasks);
-        
-        // Verify registration
-        const tasks = await vscode.tasks.fetchTasks();
-        if (tasks.some(t => t.name === 'Sample Task')) {
-            console.log('Task registered successfully!');
-            break;
-        }
-        
-        if (attempt < 2) {
-            console.log('Task not found, waiting before retry...');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-    }
+    // Initialize task system
+    console.log('Initializing task system...');
+    await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
+    
+    // Create and register task
+    const task = new vscode.Task(
+        { type: 'jump-history', task: 'Sample Task' },
+        vscode.TaskScope.Workspace,
+        'Sample Task',
+        'jump-history',
+        new vscode.ShellExecution('echo "OK"')
+    );
+    
+    // Register task provider with the created task
+    taskProvider._tasks = [task];
+    const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
+    context.subscriptions.push(registration);
+    
+    // Wait for task system to be ready
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    // Force task refresh
+    await vscode.commands.executeCommand('workbench.action.tasks.reRunTask');
     // Initialize tasks explicitly
     console.log('Initializing tasks...');
     const initialTasks = await taskProvider.provideTasks();
