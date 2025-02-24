@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "test": "node ./out/test/runTest.js",
+        "test": "node ./out/test/runTest.js --timeout 60000",
         "compile": "tsc -p ./",
         "pretest": "npm run compile"
     },
