@@ -88,31 +88,31 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     };
 
-    // Initialize task system and register provider
-    console.log('Initializing task system...');
-    const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
-    context.subscriptions.push(registration, taskProvider);
-
-    // Create task and register it
+    // Create task first
     const task = new vscode.Task(
-        { type: 'jump-history', task: 'Sample Task' } as SampleTaskDefinition,
+        { type: 'sample', task: 'Sample Task' } as SampleTaskDefinition,
         vscode.TaskScope.Workspace,
         'Sample Task',
-        'jump-history',
+        'sample',
         new vscode.ShellExecution('echo "OK"')
     );
+
+    // Set task in provider before registration
     taskProvider['_tasks'] = [task];
+
+    // Register task provider
+    console.log('Registering task provider...');
+    const registration = await vscode.tasks.registerTaskProvider('sample', taskProvider);
+    context.subscriptions.push(registration, taskProvider);
 
     // Wait for task system to be ready
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
     await new Promise(resolve => setTimeout(resolve, 2000)); // Initial wait
 
-    // Force task refresh
+    // Force task refresh and verify
     await vscode.commands.executeCommand('workbench.action.tasks.reRunTask');
-    // Initialize tasks explicitly
-    console.log('Initializing tasks...');
-    const initialTasks = await taskProvider.provideTasks();
-    console.log('Initial tasks created:', initialTasks);
+    const initialTasks = await vscode.tasks.fetchTasks();
+    console.log('Available tasks:', initialTasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
 
     // Register tree data provider
     const treeDataProvider = new class implements vscode.TreeDataProvider<string> {
@@ -138,4 +138,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}               
+}                   
