@@ -20,7 +20,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     definition,
                     vscode.TaskScope.Workspace,
                     'Sample Task',
-                    'jump-history',  // Use extension name as source
+                    'sample',  // Use task type as source
                     new vscode.ShellExecution('echo "Sample Task executed"')
                 );
 
@@ -45,7 +45,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         definition,
                         vscode.TaskScope.Workspace,
                         definition.task,
-                        'jump-history',  // Use extension name as source
+                        'sample',  // Use task type as source
                         new vscode.ShellExecution(`echo "${definition.task} executed"`)
                     );
                 }
@@ -56,12 +56,23 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     };
 
-    // Register task provider
+    // Register task provider and wait for registration
     console.log('Registering task provider...');
     try {
         const registration = vscode.tasks.registerTaskProvider('sample', taskProvider);
         context.subscriptions.push(registration);
         console.log('Task provider registered successfully');
+
+        // Wait for task system to be ready and verify task registration
+        await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
+        const tasks = await vscode.tasks.fetchTasks();
+        console.log('Available tasks after registration:', tasks.map(t => ({
+            name: t.name,
+            source: t.source,
+            type: t.definition.type,
+            scope: t.scope,
+            definition: t.definition
+        })));
     } catch (error) {
         console.error('Error registering task provider:', error);
     }
@@ -85,4 +96,4 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(fileOpenListener);
-}                                                                               
+}                                                                                       
