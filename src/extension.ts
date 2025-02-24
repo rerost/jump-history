@@ -89,7 +89,6 @@ export async function activate(context: vscode.ExtensionContext) {
     };
 
     console.log('Registering task provider...');
-    
     // Register task provider and store both the provider and registration
     const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
     context.subscriptions.push(registration, taskProvider);
@@ -97,11 +96,9 @@ export async function activate(context: vscode.ExtensionContext) {
     // Initialize task system
     console.log('Initializing task system...');
     await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'Sample Task');
-    
     // Wait for task system to be ready and force refresh
     await new Promise(resolve => setTimeout(resolve, 2000));
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-    
     // Initialize tasks explicitly
     console.log('Initializing tasks...');
     const initialTasks = await taskProvider.provideTasks();
@@ -131,4 +128,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}                             
+}     
