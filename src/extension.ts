@@ -15,29 +15,13 @@ export async function activate(context: vscode.ExtensionContext) {
                     task: 'Sample Task'
                 };
 
-                // Create task with CustomExecution for better control
+                // Create task with ShellExecution
                 const task = new vscode.Task(
                     definition,
                     vscode.TaskScope.Workspace,
                     'Sample Task',
-                    'sample',
-                    new vscode.CustomExecution(async (): Promise<vscode.Pseudoterminal> => {
-                        // Create write/close event emitters
-                        const writeEmitter = new vscode.EventEmitter<string>();
-                        const closeEmitter = new vscode.EventEmitter<number>();
-                        
-                        return {
-                            onDidWrite: writeEmitter.event,
-                            onDidClose: closeEmitter.event,
-                            open: () => {
-                                writeEmitter.fire('Sample Task is running...\r\n');
-                                writeEmitter.fire('Task completed successfully\r\n');
-                                closeEmitter.fire(0);
-                            },
-                            close: () => { /* Terminal closed */ },
-                            handleInput: () => { /* No input handling needed */ }
-                        };
-                    })
+                    'jump-history',  // Use extension name as source
+                    new vscode.ShellExecution('echo "Sample Task executed"')
                 );
 
                 console.log('Created task:', { 
@@ -56,29 +40,13 @@ export async function activate(context: vscode.ExtensionContext) {
             try {
                 const definition = task.definition as SampleTaskDefinition;
                 if (definition.type === 'sample') {
-                    // Create task with CustomExecution for better control
+                    // Create task with ShellExecution
                     return new vscode.Task(
                         definition,
                         vscode.TaskScope.Workspace,
                         definition.task,
-                        'sample',
-                        new vscode.CustomExecution(async (): Promise<vscode.Pseudoterminal> => {
-                            // Create write/close event emitters
-                            const writeEmitter = new vscode.EventEmitter<string>();
-                            const closeEmitter = new vscode.EventEmitter<number>();
-                            
-                            return {
-                                onDidWrite: writeEmitter.event,
-                                onDidClose: closeEmitter.event,
-                                open: () => {
-                                    writeEmitter.fire('Sample Task is running...\r\n');
-                                    writeEmitter.fire('Task completed successfully\r\n');
-                                    closeEmitter.fire(0);
-                                },
-                                close: () => { /* Terminal closed */ },
-                                handleInput: () => { /* No input handling needed */ }
-                            };
-                        })
+                        'jump-history',  // Use extension name as source
+                        new vscode.ShellExecution(`echo "${definition.task} executed"`)
                     );
                 }
             } catch (error) {
@@ -88,26 +56,12 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     };
 
-    // Register task provider and wait for registration
+    // Register task provider
     console.log('Registering task provider...');
     try {
-        // Register task provider
         const registration = vscode.tasks.registerTaskProvider('sample', taskProvider);
         context.subscriptions.push(registration);
         console.log('Task provider registered successfully');
-
-        // Wait for task system to be ready
-        await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-        
-        // Verify tasks are available
-        const tasks = await vscode.tasks.fetchTasks();
-        console.log('All available tasks:', tasks.map(t => ({
-            name: t.name,
-            source: t.source,
-            type: t.definition.type,
-            scope: t.scope,
-            definition: t.definition
-        })));
     } catch (error) {
         console.error('Error registering task provider:', error);
     }
@@ -131,4 +85,4 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(fileOpenListener);
-}                                                                       
+}                                                                               
