@@ -55,6 +55,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // Register task provider and wait for registration
     console.log('Registering task provider...');
     try {
+        // Register task provider
         const registration = vscode.tasks.registerTaskProvider('sample', taskProvider);
         context.subscriptions.push(registration);
         console.log('Task provider registered successfully');
@@ -62,11 +63,34 @@ export async function activate(context: vscode.ExtensionContext) {
         // Wait for task system to be ready
         await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
         
-        // Force task refresh and verify
+        // Create and register the task directly
+        const definition: SampleTaskDefinition = {
+            type: 'sample',
+            task: 'Sample Task'
+        };
+        const task = new vscode.Task(
+            definition,
+            vscode.TaskScope.Workspace,
+            'Sample Task',
+            'sample',
+            new vscode.ShellExecution('echo "OK"')
+        );
+
+        // Add task to workspace
+        await vscode.tasks.registerTask(task);
+        console.log('Task registered directly:', {
+            name: task.name,
+            source: task.source,
+            type: task.definition.type,
+            scope: task.scope,
+            definition: task.definition
+        });
+
+        // Verify tasks are available
         const tasks = await vscode.tasks.fetchTasks();
-        console.log('Available tasks after registration:', tasks.map(t => ({ 
-            name: t.name, 
-            source: t.source, 
+        console.log('All available tasks:', tasks.map(t => ({
+            name: t.name,
+            source: t.source,
             type: t.definition.type,
             scope: t.scope,
             definition: t.definition
@@ -94,9 +118,4 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(fileOpenListener);
-
-    // Verify task registration
-    console.log('Verifying task registration...');
-    const finalTasks = await vscode.tasks.fetchTasks();
-    console.log('Available tasks:', finalTasks.map((t: vscode.Task) => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}                                                       
+}                                                           
