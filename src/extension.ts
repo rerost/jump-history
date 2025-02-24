@@ -99,29 +99,6 @@ export async function activate(context: vscode.ExtensionContext) {
         // Wait for task system to be ready
         await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
         
-        // Create and register the task directly
-        const definition: SampleTaskDefinition = {
-            type: 'sample',
-            task: 'Sample Task'
-        };
-        const task = new vscode.Task(
-            definition,
-            vscode.TaskScope.Workspace,
-            'Sample Task',
-            'sample',
-            new vscode.ShellExecution('echo "OK"')
-        );
-
-        // Add task to workspace
-        await vscode.tasks.registerTask(task);
-        console.log('Task registered directly:', {
-            name: task.name,
-            source: task.source,
-            type: task.definition.type,
-            scope: task.scope,
-            definition: task.definition
-        });
-
         // Verify tasks are available
         const tasks = await vscode.tasks.fetchTasks();
         console.log('All available tasks:', tasks.map(t => ({
@@ -154,4 +131,4 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(fileOpenListener);
-}                                                                   
+}                                                                       
