@@ -22,18 +22,20 @@ export async function activate(context: vscode.ExtensionContext) {
                     'Sample Task',
                     'sample',
                     new vscode.CustomExecution(async (): Promise<vscode.Pseudoterminal> => {
+                        // Create write/close event emitters
+                        const writeEmitter = new vscode.EventEmitter<string>();
+                        const closeEmitter = new vscode.EventEmitter<number>();
+                        
                         return {
-                            onDidWrite: new vscode.EventEmitter<string>().event,
-                            onDidClose: new vscode.EventEmitter<number>().event,
+                            onDidWrite: writeEmitter.event,
+                            onDidClose: closeEmitter.event,
                             open: () => {
-                                console.log('Task terminal opened');
+                                writeEmitter.fire('Sample Task is running...\r\n');
+                                writeEmitter.fire('Task completed successfully\r\n');
+                                closeEmitter.fire(0);
                             },
-                            close: () => {
-                                console.log('Task terminal closed');
-                            },
-                            handleInput: () => {
-                                // No input handling needed
-                            }
+                            close: () => { /* Terminal closed */ },
+                            handleInput: () => { /* No input handling needed */ }
                         };
                     })
                 );
@@ -61,18 +63,20 @@ export async function activate(context: vscode.ExtensionContext) {
                         definition.task,
                         'sample',
                         new vscode.CustomExecution(async (): Promise<vscode.Pseudoterminal> => {
+                            // Create write/close event emitters
+                            const writeEmitter = new vscode.EventEmitter<string>();
+                            const closeEmitter = new vscode.EventEmitter<number>();
+                            
                             return {
-                                onDidWrite: new vscode.EventEmitter<string>().event,
-                                onDidClose: new vscode.EventEmitter<number>().event,
+                                onDidWrite: writeEmitter.event,
+                                onDidClose: closeEmitter.event,
                                 open: () => {
-                                    console.log('Task terminal opened');
+                                    writeEmitter.fire('Sample Task is running...\r\n');
+                                    writeEmitter.fire('Task completed successfully\r\n');
+                                    closeEmitter.fire(0);
                                 },
-                                close: () => {
-                                    console.log('Task terminal closed');
-                                },
-                                handleInput: () => {
-                                    // No input handling needed
-                                }
+                                close: () => { /* Terminal closed */ },
+                                handleInput: () => { /* No input handling needed */ }
                             };
                         })
                     );
@@ -150,4 +154,4 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(fileOpenListener);
-}                                                               
+}                                                                   
