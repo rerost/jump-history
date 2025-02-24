@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { runTests } from '@vscode/test-electron';
 
-async function main() {
+async function main(): Promise<void> {
     try {
         // テストファイルのディレクトリ
         const extensionDevelopmentPath = path.resolve(__dirname, '../../');
@@ -18,4 +18,7 @@ async function main() {
     }
 }
 
-main(); 
+main().catch((err: Error) => {
+    console.error(err);
+    process.exit(1);
+}); 

@@ -30,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
     // ファイルモニタリングの例
-    const fileOpenListener = vscode.window.onDidChangeActiveTextEditor((editor) => {
+    const fileOpenListener = vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor | undefined) => {
         if (editor) {
             console.log(`ファイルが開かれました: ${editor.document.fileName}`);
         }
@@ -38,4 +38,4 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(taskProvider, fileOpenListener);
     vscode.window.registerTreeDataProvider('sampleExplorer', treeDataProvider);
-} 
+}  

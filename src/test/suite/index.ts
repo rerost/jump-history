@@ -10,16 +10,16 @@ export function run(): Promise<void> {
 
     const testsRoot = path.resolve(__dirname, '.');
 
-    return new Promise((resolve, reject) => {
-        glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
+    return new Promise<void>((resolve, reject) => {
+        glob('**/**.test.js', { cwd: testsRoot }, (err: Error | null, files: string[]) => {
             if (err) {
                 return reject(err);
             }
 
-            files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+            files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)));
 
             try {
-                mocha.run(failures => {
+                mocha.run((failures: number) => {
                     if (failures > 0) {
                         reject(new Error(`${failures} テストが失敗しました`));
                     } else {
@@ -31,4 +31,4 @@ export function run(): Promise<void> {
             }
         });
     });
-} 
+}     

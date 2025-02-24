@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
+import { suite, test } from 'mocha';
 
 suite('Extension Test Suite', () => {
     test('Sample test', async () => {
@@ -10,6 +11,6 @@ suite('Extension Test Suite', () => {
 
     test('Tasks test', async () => {
         const tasks = await vscode.tasks.fetchTasks();
-        assert.ok(tasks.some(task => task.name === 'Sample Task'));
+        assert.ok(tasks.some((task: vscode.Task) => task.name === 'Sample Task'));
     });
-}); 
+});  
