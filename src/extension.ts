@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
+    const outputChannel = vscode.window.createOutputChannel('Jump History');
+    outputChannel.appendLine('Activating jump-history extension');
     // Tasks出力の例
     const taskProvider = vscode.tasks.registerTaskProvider('jump-history', {
         provideTasks: () => {
@@ -28,6 +30,9 @@ export function activate(context: vscode.ExtensionContext) {
             return ['Jump History'];
         }
     };
+    vscode.window.createTreeView('jumpHistoryExplorer', {
+        treeDataProvider: treeDataProvider
+    });
 
     // ファイルモニタリングの例
     const fileOpenListener = vscode.window.onDidChangeActiveTextEditor((editor) => {
@@ -35,7 +40,11 @@ export function activate(context: vscode.ExtensionContext) {
             console.log(`ファイルが開かれました: ${editor.document.fileName}`);
         }
     });
-
     context.subscriptions.push(taskProvider, fileOpenListener);
+
     vscode.window.registerTreeDataProvider('jumpHistoryExplorer', treeDataProvider);
 } 
+
+export function deactivate() {
+    console.log("deactivate")
+}

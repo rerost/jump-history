@@ -4,6 +4,9 @@
     "description": "Track and manage your code navigation history",
     "version": "0.0.1",
     "publisher": "rerost",
+    "engines": {
+        "vscode": "^1.74.0"
+    },
     "scripts": {
         "test": "node ./out/test/runTest.js --timeout 60000",
         "compile": "tsc -p ./",
