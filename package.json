@@ -8,7 +8,8 @@
         "vscode": "^1.97.0"
     },
     "activationEvents": [
-        "*"
+        "onStartupFinished",
+        "onCommand:workbench.action.tasks.configureTaskRunner"
     ],
     "contributes": {
         "taskDefinitions": [{
@@ -37,4 +38,4 @@
         "mocha": "^8.3.2",
         "typescript": "^4.2.3"
     }
-}   
+}     

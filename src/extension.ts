@@ -20,17 +20,17 @@ export async function activate(context: vscode.ExtensionContext) {
         resolveTask: () => undefined
     };
 
-    // Register task provider
+    // Register task provider and wait for registration
     console.log('Registering task provider...');
     const registration = vscode.tasks.registerTaskProvider('sample', taskProvider);
     context.subscriptions.push(registration);
 
     // Wait for task system to be ready
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Initial wait
 
     // Force task refresh and verify
-    const initialTasks = await vscode.tasks.fetchTasks();
+    const tasks = await vscode.tasks.fetchTasks();
+    console.log('Initial tasks:', tasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
     console.log('Available tasks:', initialTasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
 
     // Register tree data provider
@@ -57,4 +57,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}                                       
+}                                           
