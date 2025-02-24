@@ -1,4 +1,9 @@
 {
+    "name": "jump-history",
+    "displayName": "Jump History",
+    "description": "Track and manage your code navigation history",
+    "version": "0.0.1",
+    "publisher": "rerost",
     "scripts": {
         "test": "node ./out/test/runTest.js --timeout 60000",
         "compile": "tsc -p ./",

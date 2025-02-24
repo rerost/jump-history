@@ -2,14 +2,14 @@ import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
     // Tasks出力の例
-    const taskProvider = vscode.tasks.registerTaskProvider('sample', {
+    const taskProvider = vscode.tasks.registerTaskProvider('jump-history', {
         provideTasks: () => {
             const task = new vscode.Task(
-                { type: 'sample' },
+                { type: 'jump-history' },
                 vscode.TaskScope.Workspace,
-                'Sample Task',
-                'sample',
-                new vscode.ShellExecution('echo "OK"')
+                'Jump History',
+                'jump-history',
+                new vscode.ShellExecution('echo "Jump History is ready"')
             );
             return [task];
         },
@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         getChildren(): string[] {
-            return ['OK'];
+            return ['Jump History'];
         }
     };
 
@@ -37,5 +37,5 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(taskProvider, fileOpenListener);
-    vscode.window.registerTreeDataProvider('sampleExplorer', treeDataProvider);
+    vscode.window.registerTreeDataProvider('jumpHistoryExplorer', treeDataProvider);
 } 

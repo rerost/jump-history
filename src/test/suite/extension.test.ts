@@ -10,6 +10,6 @@ suite('Extension Test Suite', () => {
 
     test('Tasks test', async () => {
         const tasks = await vscode.tasks.fetchTasks();
-        assert.ok(tasks.some(task => task.name === 'Sample Task'));
+        assert.ok(tasks.some(task => task.name === 'Jump History'));
     });
 }); 
