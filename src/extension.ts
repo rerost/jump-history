@@ -95,10 +95,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Initialize task system
     console.log('Initializing task system...');
-    await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'Sample Task');
-    // Wait for task system to be ready and force refresh
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Force task system initialization and wait for it to be ready
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Increase wait time for CI environment
     // Initialize tasks explicitly
     console.log('Initializing tasks...');
     const initialTasks = await taskProvider.provideTasks();
@@ -128,4 +127,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}    
+}       
