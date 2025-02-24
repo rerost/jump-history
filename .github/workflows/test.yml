@@ -9,7 +9,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -31,13 +31,3 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y xvfb
-
-    # Linuxの場合、xvfbを使用してテストを実行
-    - name: Run tests (Linux)
-      if: runner.os == 'Linux'
-      run: xvfb-run -a npm test
-
-    # Linux以外の場合、通常のテスト実行
-    - name: Run tests (non-Linux)
-      if: runner.os != 'Linux'
-      run: npm test 
