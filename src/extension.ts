@@ -88,38 +88,15 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     };
 
-    console.log('Registering task provider...');
-    // Register task provider and store both the provider and registration
+    // Initialize task system and register provider
+    console.log('Initializing task system...');
     const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
     context.subscriptions.push(registration, taskProvider);
 
-    // Initialize task system
-    console.log('Initializing task system...');
-    // Force task system initialization and wait for it to be ready
+    // Wait for task system to be ready
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
     await new Promise(resolve => setTimeout(resolve, 5000)); // Initial wait
-    
-    // Initialize task system
-    console.log('Initializing task system...');
-    await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-    
-    // Create and register task
-    const task = new vscode.Task(
-        { type: 'jump-history', task: 'Sample Task' } as SampleTaskDefinition,
-        vscode.TaskScope.Workspace,
-        'Sample Task',
-        'jump-history',
-        new vscode.ShellExecution('echo "OK"')
-    );
-    
-    // Register task provider with the created task
-    taskProvider['_tasks'] = [task];
-    const registration = await vscode.tasks.registerTaskProvider('jump-history', taskProvider);
-    context.subscriptions.push(registration);
-    
-    // Wait for task system to be ready
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
+
     // Force task refresh
     await vscode.commands.executeCommand('workbench.action.tasks.reRunTask');
     // Initialize tasks explicitly
@@ -151,4 +128,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}       
+}           
