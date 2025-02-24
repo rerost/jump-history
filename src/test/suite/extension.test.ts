@@ -7,11 +7,12 @@ suite('Extension Test Suite', () => {
         this.timeout(30000);
         
         console.log('Starting Tasks test...');
+        console.log('Available extensions:', vscode.extensions.all.map(e => e.id));
         
         // Wait for extension to activate
-        const ext = vscode.extensions.getExtension('rerost.jump-history');
+        const ext = vscode.extensions.getExtension('@rerost/jump-history');
         if (!ext) {
-            throw new Error('Extension not found');
+            throw new Error('Extension not found. Available extensions: ' + vscode.extensions.all.map(e => e.id).join(', '));
         }
         if (!ext.isActive) {
             console.log('Activating extension...');
@@ -64,4 +65,4 @@ suite('Extension Test Suite', () => {
         
         assert.ok(foundTask, 'Sample Task could not be executed after multiple attempts');
     });
-});                      
+});                        
