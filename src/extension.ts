@@ -5,19 +5,37 @@ interface SampleTaskDefinition extends vscode.TaskDefinition {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-    // Create simple task provider
+    // Create task provider with proper type handling
     const taskProvider: vscode.TaskProvider = {
         provideTasks: async () => {
+            const definition: SampleTaskDefinition = {
+                type: 'sample',
+                task: 'Sample Task'
+            };
             const task = new vscode.Task(
-                { type: 'sample', task: 'Sample Task' },
-                vscode.TaskScope.Workspace,
+                definition,
+                vscode.TaskScope.Global, // Use Global scope for better visibility
                 'Sample Task',
                 'sample',
                 new vscode.ShellExecution('echo "OK"')
             );
+            task.definition = definition; // Ensure definition is properly set
             return [task];
         },
-        resolveTask: () => undefined
+        resolveTask: (task: vscode.Task) => {
+            const definition = task.definition as SampleTaskDefinition;
+            if (definition.type === 'sample') {
+                const resolvedTask = new vscode.Task(
+                    definition,
+                    vscode.TaskScope.Global,
+                    definition.task,
+                    'sample',
+                    new vscode.ShellExecution(`echo "${definition.task}"`)
+                );
+                return resolvedTask;
+            }
+            return undefined;
+        }
     };
 
     // Register task provider and wait for registration
@@ -25,12 +43,16 @@ export async function activate(context: vscode.ExtensionContext) {
     const registration = vscode.tasks.registerTaskProvider('sample', taskProvider);
     context.subscriptions.push(registration);
 
-    // Wait for task system to be ready
+    // Wait for task system to be ready and verify
     await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
-
-    // Force task refresh and verify
     const tasks = await vscode.tasks.fetchTasks();
-    console.log('Initial tasks:', tasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
+    console.log('Initial tasks:', tasks.map(t => ({ 
+        name: t.name, 
+        source: t.source, 
+        type: t.definition.type,
+        scope: t.scope,
+        definition: t.definition
+    })));
     console.log('Available tasks:', initialTasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
 
     // Register tree data provider
@@ -57,4 +79,4 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Verifying task registration...');
     const tasks = await vscode.tasks.fetchTasks();
     console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, scope: t.scope, type: t.definition.type })));
-}                                           
+}                                               
