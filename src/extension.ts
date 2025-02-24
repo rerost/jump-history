@@ -101,6 +101,7 @@ export async function activate(context: vscode.ExtensionContext) {
     await vscode.commands.executeCommand('workbench.action.tasks.reRunTask'); // Try to force task refresh
     await vscode.commands.executeCommand('workbench.action.tasks.showTasks'); // Show tasks to ensure they're loaded
     await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'Sample Task'); // Try to run the task directly
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for task to run
     // Initialize tasks explicitly
     console.log('Initializing tasks...');
     const initialTasks = await taskProvider.provideTasks();
