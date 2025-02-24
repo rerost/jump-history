@@ -25,31 +25,19 @@ suite('Extension Test Suite', () => {
 
         // Wait for task provider registration
         console.log('Waiting for task provider registration...');
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Initial wait
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Longer initial wait
 
-        // Wait for task provider registration with retries
-        let foundTask = false;
-        const maxAttempts = 20; // More attempts with shorter interval
-        const retryInterval = 1000; // Shorter interval
+        // Force task refresh
+        await vscode.commands.executeCommand('workbench.action.tasks.configureTaskRunner');
 
-        console.log('Attempting to verify task...');
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            console.log(`Attempt ${attempt + 1} of ${maxAttempts}`);
-            const tasks = await vscode.tasks.fetchTasks();
-            console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
-            
-            if (tasks.some(t => t.name === 'Sample Task' && t.definition.type === 'sample')) {
-                foundTask = true;
-                console.log('Task found!');
-                break;
-            }
-
-            if (attempt < maxAttempts - 1) {
-                console.log(`Task not found, waiting ${retryInterval}ms before retry...`);
-                await new Promise(resolve => setTimeout(resolve, retryInterval));
-            }
-        }
+        // Get tasks and verify
+        const tasks = await vscode.tasks.fetchTasks();
+        console.log('Available tasks:', tasks.map(t => ({ name: t.name, source: t.source, type: t.definition.type })));
+        
+        // Check if our task exists
+        const foundTask = tasks.some(t => t.name === 'Sample Task' && t.definition.type === 'sample');
+        console.log('Task found:', foundTask);
 
         assert.ok(foundTask, 'Sample Task could not be found after multiple attempts');
     });
-});          
+});            
