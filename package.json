@@ -2,7 +2,7 @@
   "name": "jump-history",
   "displayName": "Jump History",
   "description": "Track and visualize code navigation history when jumping between definitions",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "publisher": "rerost",
   "engines": {
     "vscode": "^1.60.0"

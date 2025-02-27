@@ -35,6 +35,8 @@ The extension automatically tracks your navigation between files. To view or man
 - **Show Navigation Tree**: Run the command `Jump History: Show Navigation Tree` from the Command Palette
 - **Reset Navigation Tree**: Run the command `Jump History: Reset Navigation Tree` from the Command Palette
 
+The navigation tree is displayed in the Output panel under the "Jump History" channel.
+
 ## Requirements
 
 - Visual Studio Code 1.60.0 or higher
@@ -48,6 +50,17 @@ This extension doesn't have any specific settings yet.
 - The extension uses a simplistic approach to detect definition jumps. It may not accurately capture all types of navigation.
 
 ## Release Notes
+
+### 1.2.1
+
+- Fixed issue where the Jump History output panel would repeatedly appear during navigation
+- The output panel now only shows when explicitly requested via the "Show Navigation Tree" command
+
+### 1.2.0
+
+- Improved output messages for better clarity and consistency
+- Enhanced navigation tree header and reset messages
+- Added more descriptive empty state message
 
 ### 1.1.0
 
