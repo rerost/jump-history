@@ -116,6 +116,14 @@ export function activate(context: vscode.ExtensionContext) {
           uri.toString() === currentNode.parent.uri.toString()) {
         // Move up to the parent
         currentNode = currentNode.parent;
+      } 
+      // Check if we're navigating to an existing child node
+      else if (currentNode && currentNode.children.some(child => child.uri.toString() === uri.toString())) {
+        // Find and navigate to the existing child node
+        const existingChild = currentNode.children.find(child => child.uri.toString() === uri.toString());
+        if (existingChild) {
+          currentNode = existingChild;
+        }
       } else {
         // Check if the file is already open in another tab
         const isAlreadyOpenInAnotherTab = vscode.window.tabGroups.all
