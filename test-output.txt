@@ -1,0 +1,25 @@
+Test output
+Current directory: /Users/hazumi/go/src/github.com/rerost/jump-history
+
+Initial tree structure:
+Jump History Tree:
+* fileA.js
+  * fileB.js
+    * fileC.js
+
+Simulating opening fileD.js (not through code jump)...
+
+Tree structure after adding fileD.js:
+Jump History Tree:
+* fileA.js
+  * fileB.js
+    * fileC.js
+* fileD.js
+
+Checking implementation in extension.ts...
+✓ Using an array of root nodes
+✓ Adding new root node when file is not in the tree
+✓ Correctly detecting definition jumps
+✓ Printing the tree when it's modified
+
+Test completed.
