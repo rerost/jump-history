@@ -1,0 +1,39 @@
+Display Test Output
+
+Testing printTree function...
+
+Printing tree for the first time:
+[Output Channel] Cleared
+[Output Channel] Jump History Tree:
+[Output Channel] * fileA.js
+[Output Channel]   * fileB.js
+[Output Channel]     * fileC.js
+
+Printing tree after adding fileD.js:
+[Output Channel] Cleared
+[Output Channel] Jump History Tree:
+[Output Channel] * fileA.js
+[Output Channel]   * fileB.js
+[Output Channel]     * fileC.js
+[Output Channel] * fileD.js
+
+Printing tree after adding fileE.js as a child of fileD.js:
+[Output Channel] Cleared
+[Output Channel] Jump History Tree:
+[Output Channel] * fileA.js
+[Output Channel]   * fileB.js
+[Output Channel]     * fileC.js
+[Output Channel] * fileD.js
+[Output Channel]   * fileE.js
+
+Showing the tree:
+[Output Channel] Cleared
+[Output Channel] Jump History Tree:
+[Output Channel] * fileA.js
+[Output Channel]   * fileB.js
+[Output Channel]     * fileC.js
+[Output Channel] * fileD.js
+[Output Channel]   * fileE.js
+[Output Channel] Shown
+
+Test completed.

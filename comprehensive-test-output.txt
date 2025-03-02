@@ -1,0 +1,49 @@
+Comprehensive Test Output
+Current directory: /Users/hazumi/go/src/github.com/rerost/jump-history
+Running test...
+Activating extension...
+
+Opening fileA.js...
+Jump History Tree:
+* fileA.js
+
+Tree after opening fileA.js:
+Jump History Tree:
+* fileA.js
+
+Simulating code jump from fileA.js to fileB.js...
+Jump History Tree:
+* fileA.js
+* fileB.js
+
+Tree after code jump to fileB.js:
+Jump History Tree:
+* fileA.js
+* fileB.js
+
+Simulating code jump from fileB.js to fileC.js...
+Jump History Tree:
+* fileA.js
+* fileB.js
+  * fileC.js
+
+Tree after code jump to fileC.js:
+Jump History Tree:
+* fileA.js
+* fileB.js
+  * fileC.js
+
+Resetting the extension...
+
+Error: Cannot read properties of undefined (reading 'reset')
+TypeError: Cannot read properties of undefined (reading 'reset')
+    at runTest (/Users/hazumi/go/src/github.com/rerost/jump-history/comprehensive-test.js:356:31)
+    at Object.<anonymous> (/Users/hazumi/go/src/github.com/rerost/jump-history/comprehensive-test.js:415:3)
+    at Module._compile (node:internal/modules/cjs/loader:1740:14)
+    at Object..js (node:internal/modules/cjs/loader:1905:10)
+    at Module.load (node:internal/modules/cjs/loader:1474:32)
+    at Function._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:234:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:151:5)
+    at node:internal/main/run_main_module:33:47
